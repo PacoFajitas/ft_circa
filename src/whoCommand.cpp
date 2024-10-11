@@ -12,7 +12,7 @@ void handleWhoCommand(Client& client, const std::string& channelName, Server& se
         return;
     }
 
-    const std::vector<Client*>& users = channel->getParticipants();
+    const std::vector<Client*>& users = channel->getUsersWithRole("INCHANNEL");
     for (size_t i = 0; i < users.size(); ++i) {
         // Enviar respuesta WHO (352) para cada usuario en el canal
         std::string whoReplyMsg = ":" + server.getServerName() + " 352 " + client.getNickname() +

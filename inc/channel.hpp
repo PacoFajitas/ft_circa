@@ -9,6 +9,8 @@
 #include "client.hpp"
 #include "responses.hpp"
 
+// INCHANNEL
+// ALL
 
 
 enum UserRole { PARTICIPANT, OPERATOR, INVITED };

@@ -62,20 +62,60 @@ const	std::string& Channel::getName() const {
 		return (name);
 }
 
+void printClientVector(const std::vector<Client *>& vec) {
+    std::cout << "Client Vector Size: " << vec.size() << " Client Vector: ";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        std::cout << vec[i]->getNickname() << " ";
+    }
+    std::cout << " |"<< std::endl; // Para terminar la línea después de imprimir
+}
+
 std::vector<Client *> Channel::getUsersWithRole(std::string mode)
 {
     std::vector<Client *> ret;
+    UserRole tag;
+
     if (mode == "INCHANNEL")
     {
-        std::map<Client *, UserRole>::iterator it;
-        it = users.begin();
-        while (it != users.end())
-        {
-            if (it->second == PARTICIPANT || it->second == OPERATOR)
-                ret.push_back(it->first);
-            ++it;
-        }
+        std::vector<Client *> ret2;
+        ret = getUsersWithRole("PARTICIPANT");
+        ret2 = getUsersWithRole("OPERATOR");
+        if (ret.size() > 0 && ret2.size() > 0)
+            ret.insert(ret.end(), ret2.begin(), ret2.end());
+        if (ret2.size() > 0)
+            return (ret2);
+        return (ret);
     }
+    else if (mode == "ALL")
+    {
+        std::vector<Client *> ret2;
+        ret = getUsersWithRole("INCHANNEL");
+        ret2 = getUsersWithRole("INVITED");
+        if (ret.size() > 0 && ret2.size() > 0)
+            ret.insert(ret.end(), ret2.begin(), ret2.end());
+        if (ret2.size() > 0)
+            return (ret2);
+        return (ret);
+    }
+
+    if (mode == "PARTICIPANT")
+        tag = PARTICIPANT;
+    else if (mode == "OPERATOR")
+        tag = OPERATOR;
+    else if (mode == "INVITED")
+        tag = INVITED;
+
+   
+    std::map<Client *, UserRole>::iterator it;
+    it = users.begin();
+    while (it != users.end())
+    {
+        if (it->second == tag)
+            ret.push_back(it->first);
+        ++it;
+    }
+    // printClientVector(ret);
+    return (ret);
 }
 
 //     // Función para obtener la lista de participantes

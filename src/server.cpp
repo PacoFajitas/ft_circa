@@ -325,7 +325,7 @@ void	Server::sendPing(Client& client) {
 std::vector<Client*> Server::getChannelUsers(const std::string& channelName) {
     Channel* channel = getChannel(channelName);
     if (channel) {
-        return (channel->getParticipants());  // Retorna los usuarios del canal si existe
+        return (channel->getUsersWithRole("INCHANNEL"));  // Retorna los usuarios del canal si existe
     }
     return std::vector<Client*>();  // Si el canal no existe, devuelve un vector vacío
 }

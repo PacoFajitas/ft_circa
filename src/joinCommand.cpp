@@ -284,6 +284,11 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     // {
 
     // }
+    else
+    {
+        channel->manageUser(&client, PARTICIPANT, true);
+    }
+
     // Añadir el cliente al canal si hay que añadirlo
 
     // 1. Enviar confirmación de JOIN al cliente que se une
