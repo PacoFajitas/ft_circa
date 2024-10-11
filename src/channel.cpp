@@ -56,7 +56,7 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
         ret2 = getUsersWithRole("OPERATOR");
         if (ret.size() > 0 && ret2.size() > 0)
             ret.insert(ret.end(), ret2.begin(), ret2.end());
-        if (ret2.size() > 0)
+        else if (ret2.size() > 0)
             return (ret2);
         return (ret);
     }
@@ -67,7 +67,7 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
         ret2 = getUsersWithRole("INVITED");
         if (ret.size() > 0 && ret2.size() > 0)
             ret.insert(ret.end(), ret2.begin(), ret2.end());
-        if (ret2.size() > 0)
+        else if (ret2.size() > 0)
             return (ret2);
         return (ret);
     }
