@@ -2,8 +2,11 @@
 #include "client.hpp"
 #include "server.hpp"
 
-Channel::Channel(const std::string& channel_name, Server& srv) : name(channel_name), server(srv) {
+Channel::Channel(const std::string& channel_name, Server& srv, Client &client) : name(channel_name), server(srv) 
+{
 	std::cout << "Canal creado: " << name << std::endl;
+    manageUser(&client, OPERATOR, true);
+    //poner los modos a false:D
 }
 
 void	Channel::manageUser(Client* client, UserRole role, bool add) {
@@ -59,6 +62,22 @@ const	std::string& Channel::getName() const {
 		return (name);
 }
 
+std::vector<Client *> Channel::getUsersWithRole(std::string mode)
+{
+    std::vector<Client *> ret;
+    if (mode == "INCHANNEL")
+    {
+        std::map<Client *, UserRole>::iterator it;
+        it = users.begin();
+        while (it != users.end())
+        {
+            if (it->second == PARTICIPANT || it->second == OPERATOR)
+                ret.push_back(it->first);
+            ++it;
+        }
+    }
+}
+
 //     // Función para obtener la lista de participantes
 // const	std::vector<Client*>& Channel::getParticipants() const {
 // 		return (participants);
@@ -92,14 +111,14 @@ std::set<int> Channel::getClientFDs() const {
 // En la clase Channel
 
 // Almacena los clientes a los que ya se les ha enviado el modo
-void Channel::switchMode(std::string mode)
-{
-    if (mode)
-    {
-        ChannelPatata( )
-    }
+// void Channel::switchMode(std::string mode)
+// {
+//     if (mode)
+//     {
+//         ChannelPatata( )
+//     }
     
-}
+// }
 bool Channel::hasSentModeToClient(const Client& client) {
     return clientsWithModeSent.find(client.getSocketFD()) != clientsWithModeSent.end();
 }

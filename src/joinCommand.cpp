@@ -273,17 +273,18 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
 
     std::string channelName = tokens[1];
     Channel* channel = server.getChannel(channelName);
-    bool isNewChannel = false;
 
-    if (!channel) {
+    if (!channel) 
+    {
         // Crear un nuevo canal si no existe
-        channel = new Channel(channelName, server);
+        channel = new Channel(channelName, server, client);
         server.addChannel(channel);
-        isNewChannel = true;
     }
+    // else if (invite only)
+    // {
 
-    // Añadir el cliente al canal
-    channel->manageUser(&client, PARTICIPANT, true);
+    // }
+    // Añadir el cliente al canal si hay que añadirlo
 
     // 1. Enviar confirmación de JOIN al cliente que se une
     std::string joinMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname() + " JOIN :" + channelName + "\r\n";
@@ -306,7 +307,7 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
 
     // 5. Construir y enviar la lista de usuarios como un mensaje de canal (NAMES)
     std::string clientList;
-    const std::vector<Client*>& participants = channel->getParticipants();
+    const std::vector<Client*>& participants = channel->getUsersWithRole("INCHANNEL");
     for (size_t i = 0; i < participants.size(); ++i) {
         clientList += participants[i]->getNickname();
         if (i < participants.size() - 1) {

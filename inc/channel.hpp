@@ -17,7 +17,7 @@ class Channel {
 
 	public :
 		// Constructor
-		Channel(const std::string& channel_name, Server& srv);
+		Channel(const std::string& channel_name, Server& srv, Client& client);
 
 		//Anadir y eliminar usuarios de todo tipo al canal
 		void	manageUser(Client* client, UserRole role, bool add);
@@ -40,12 +40,14 @@ class Channel {
 		std::set<int>getClientFDs() const;
 		bool	hasSentModeToClient(const Client& client);
 		void	setModeSentToClient(const Client& client);
+		std::vector<Client *>getUsersWithRole(std::string mode);
 
 
 	private:
 		std::string name;
 		std::string topic;
 		std::map<Client*, UserRole> users;
+		std::map<char, bool> modes;
 		// std::vector<Client*> participants;
 		// std::vector<Client*> operators;
 		// std::vector<Client*> invited;
