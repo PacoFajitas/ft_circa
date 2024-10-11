@@ -280,10 +280,11 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
         channel = new Channel(channelName, server, client);
         server.addChannel(channel);
     }
-    // else if (invite only)
-    // {
-
-    // }
+    else if (channel->getMode('i') == true && channel->getClientInvited(client))
+    {
+        //tirar el error correspondiente
+        std::cout << "Not invited!" << std::endl;
+    }
     else
     {
         channel->manageUser(&client, PARTICIPANT, true);

@@ -6,70 +6,44 @@ Channel::Channel(const std::string& channel_name, Server& srv, Client &client) :
 {
 	std::cout << "Canal creado: " << name << std::endl;
     manageUser(&client, OPERATOR, true);
+    _modes['i'] = false;
+    _modes['t'] = false;
+    _modes['k'] = false;
+    _modes['o'] = false;
+    _modes['l'] = false;
     //poner los modos a false:D
 }
 
-void	Channel::manageUser(Client* client, UserRole role, bool add) {
+// GETERS AND SETERS
 
-    if (add)
-        users[client] = role;
-    else
-    {
-        users.erase(client);
-    }
-
+// Returns the name of the channel
+const	std::string& Channel::getName() const 
+{
+		return (name);
 }
-//Funcion para obtener toda la lista de clientes con sus roles
 
+// Returns if the selected mode is active or not
+const	bool& Channel::getMode(char mode) const 
+{
+    std::map<char, bool>::const_iterator iter = _modes.find(mode);
+    return iter->second;
+}
+
+// Returns the map with Clients* and UserRole
 const std::map<Client *, UserRole> Channel::getUsers() const
 {
     return users;
 }
 
-//Funcion para setear el rol de un usuario en concreto
-void Channel::setRol(std::string user,  UserRole rol)
-{
-    std::map<Client *, UserRole>::iterator it = users.begin();
-    while(it != users.end())
-    {
-        if (it->first->getUsername() == user)
-        {
-            it->second = rol;
-            return ;
-        }
-        it++;  
-    }
-    //En caso de que no lo encuentre en el canal busco tambien en el servidor para dar
-    //El codigo de error que pertoque en cada situacion
-    std::map<int, Client*> temp = server.getClients();
-    std::map<int, Client*>::iterator it2 = temp.begin();
-    while(it2 != temp.end())
-    {
-        
-        if(it2->second->getUsername() == user)
-            break ;
-    }
-    if (it2 == temp.end())
-    {
-        ERR_NOSUCHNICK(server.getServerName(), user);
-        return ;
-    }
-    if(it == users.end())
-        ERR_USERNOTINCHANNEL(server.getServerName(), user, this->name);
-}
-// Función para obtener el nombre del canal
-const	std::string& Channel::getName() const {
-		return (name);
-}
+// void printClientVector(const std::vector<Client *>& vec) {
+//     std::cout << "Client Vector Size: " << vec.size() << " Client Vector: ";
+//     for (size_t i = 0; i < vec.size(); ++i) {
+//         std::cout << vec[i]->getNickname() << " ";
+//     }
+//     std::cout << " |"<< std::endl; // Para terminar la línea después de imprimir
+// }
 
-void printClientVector(const std::vector<Client *>& vec) {
-    std::cout << "Client Vector Size: " << vec.size() << " Client Vector: ";
-    for (size_t i = 0; i < vec.size(); ++i) {
-        std::cout << vec[i]->getNickname() << " ";
-    }
-    std::cout << " |"<< std::endl; // Para terminar la línea después de imprimir
-}
-
+// Returns a vector of Clients* with the selected role (PARTICIPANT, OPERATOR, INVITED, INCHANNEL, ALL)
 std::vector<Client *> Channel::getUsersWithRole(std::string mode)
 {
     std::vector<Client *> ret;
@@ -118,24 +92,23 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
     return (ret);
 }
 
-//     // Función para obtener la lista de participantes
-// const	std::vector<Client*>& Channel::getParticipants() const {
-// 		return (participants);
-// }
-
-// const	std::vector<Client*>& Channel::getOperators() const {
-// 	return (operators);
-// }
-
-// const	std::vector<Client*>& Channel::getInvited() const {
-// 	return (invited);
-// }
-
-void	Channel::dummyUseServer() {
-    std::cout << &server << std::endl;
+bool Channel::getClientInvited(Client &client)
+{
+    std::vector<Client *> ret;
+    ret = getUsersWithRole("INVITED");
+    if (ret.empty())
+        return (false);
+    std::vector<Client *>::iterator it = ret.begin();
+    while (it != ret.end())
+    {
+        if ((*it)->getNickname() == client.getNickname())
+            return (true);
+        ++it;
+    }
+    return (false);
 }
 
-//Devolver todos los fds de los clientes del canal en un vector de fds
+//Returns all ClientFDs in a vector
 std::set<int> Channel::getClientFDs() const {
     std::set<int> fds;
     std::map<Client *, UserRole>::const_iterator it = users.begin();
@@ -147,6 +120,67 @@ std::set<int> Channel::getClientFDs() const {
     return fds;
 }
 
+// Returns the topic of the channel
+const	std::string& Channel::getTopic() const 
+{ 
+    return topic; 
+}
+
+// Sets the topic of the channel
+void	Channel::setTopic(const std::string& newTopic) 
+{ 
+    topic = newTopic; 
+}
+
+// Sets the role of a user
+void Channel::setRole(std::string user,  UserRole rol)
+{
+    std::map<Client *, UserRole>::iterator it = users.begin();
+    while(it != users.end())
+    {
+        if (it->first->getUsername() == user)
+        {
+            it->second = rol;
+            return ;
+        }
+        it++;  
+    }
+    //En caso de que no lo encuentre en el canal busco tambien en el servidor para dar
+    //El codigo de error que pertoque en cada situacion
+    std::map<int, Client*> temp = server.getClients();
+    std::map<int, Client*>::iterator it2 = temp.begin();
+    while(it2 != temp.end())
+    {
+        
+        if(it2->second->getUsername() == user)
+            break ;
+    }
+    if (it2 == temp.end())
+    {
+        ERR_NOSUCHNICK(server.getServerName(), user);
+        return ;
+    }
+    if(it == users.end())
+        ERR_USERNOTINCHANNEL(server.getServerName(), user, this->name);
+}
+
+// METHODS
+
+// Adds/Deletes a Client from the users map
+void	Channel::manageUser(Client* client, UserRole role, bool add) {
+
+    if (add)
+        users[client] = role;
+    else
+    {
+        users.erase(client);
+    }
+
+}
+
+void	Channel::dummyUseServer() {
+    std::cout << &server << std::endl;
+}
 
 // En la clase Channel
 
