@@ -1,40 +1,52 @@
-# Nombre del ejecutable
 NAME = ircserv
 
-# Compilador y banderas
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+#########
+RM = rm -f
+CC = c++
+CFLAGS = -Werror -Wextra -Wall -g -fsanitize=address -std=c++98 
+#########
 
-# Archivos fuente y objetos
-SRCS = main.cpp server.cpp client.cpp socketUtils.cpp utils.cpp commands.cpp nickCommand.cpp userCommand.cpp passCommand.cpp joinCommand.cpp channel.cpp pingCommand.cpp pongCommand.cpp whoCommand.cpp modeCommand.cpp
+#########
+FILES = channel client commands joinCommand main modeCommand nickCommand passCommand pingCommand pongCommand server socketUtils userCommand utils whoCommand
 
-OBJS = $(SRCS:.cpp=.o)
+FILES += #pass nick user join privmsg topic 
 
-# Incluir directorios (si hay encabezados en carpetas específicas)
-INCLUDES = -I.
+SRC = $(addsuffix .cpp, $(FILES))
 
-# Regla por defecto: compilar todo
-all: $(NAME)
+INC = inc
+vpath %.cpp src src/commands
+#########
 
-# Regla para compilar el ejecutable
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(NAME) $(OBJS)
+#########
+OBJ_DIR = OBJ
+OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
+DEP = $(addsuffix .d, $(basename $(OBJ)))
+#########
 
-# Regla para compilar archivos .o desde .cpp
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+#########
+$(OBJ_DIR)/%.o: %.cpp 
+	@mkdir -p $(@D)
+	@${CC}  -I $(INC) $(CFLAGS) -MMD -c $< -o $@
 
-# Limpiar archivos objeto
+all:
+	$(MAKE) $(NAME) --no-print-directory
+
+$(NAME):: $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
+	@echo "EVERYTHING DONE   "⠀⠀⠀⠀⠀⠀⠀
+
+
 clean:
-	rm -f $(OBJS)
+	$(RM) $(OBJ) $(DEP)
+	$(RM) -r $(OBJ_DIR)
+	@echo "OBJECTS REMOVED   "
 
-# Limpiar archivos objeto y el ejecutable
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
+	@echo "EVERYTHING REMOVED   "
 
-# Recompilar todo
-re: fclean all
+re:	fclean all
 
-# Regla de phony para evitar conflictos con archivos del mismo nombre
 .PHONY: all clean fclean re
 
+-include $(DEP)
