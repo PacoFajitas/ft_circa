@@ -1,0 +1,43 @@
+Comandos y Respuestas Clave en IRC
+Comandos Básicos:
+
+PASS <password>: Envía la contraseña para autenticarse con el servidor.
+NICK <nickname>: Establece o cambia el apodo del usuario.
+USER <username> <hostname> <servername> :<realname>: Proporciona información adicional sobre el usuario al conectarse.
+JOIN <channel>: Únete a un canal.
+PART <channel> :<message>: Salir de un canal opcionalmente con un mensaje.
+PRIVMSG <target> :<message>: Envía un mensaje privado a un usuario o canal.
+NOTICE <target> :<message>: Envía un mensaje similar a PRIVMSG, pero no genera respuestas automáticas.
+PING <server1> [<server2>]: Verifica la conexión entre el cliente y el servidor.
+PONG <server>: Responde a un PING del servidor.
+Respuestas Clave del Servidor:
+
+001 (RPL_WELCOME): Bienvenida al usuario después de la autenticación correcta.
+002 (RPL_YOURHOST): Informa al usuario sobre la versión del servidor.
+003 (RPL_CREATED): Fecha de creación del servidor.
+004 (RPL_MYINFO): Información básica del servidor (nombre, versión, etc.).
+005 (RPL_BOUNCE): Informa de alternativas si el servidor actual no está disponible.
+353 (RPL_NAMREPLY): Lista de usuarios en un canal.
+366 (RPL_ENDOFNAMES): Fin de la lista de usuarios en un canal.
+Mensajes de Error:
+
+401 (ERR_NOSUCHNICK): Nick o canal especificado no existe.
+403 (ERR_NOSUCHCHANNEL): El canal especificado no existe.
+433 (ERR_NICKNAMEINUSE): El apodo solicitado ya está en uso.
+462 (ERR_ALREADYREGISTRED): Intento de volver a registrarse después de la autenticación.
+464 (ERR_PASSWDMISMATCH): Contraseña incorrecta.
+421 (ERR_UNKNOWNCOMMAND): Comando no reconocido.
+Manejo de Conexión:
+
+HexChat envía una serie de comandos (CAP LS, PASS, NICK, USER) al inicio de la conexión.
+Si algún paso de autenticación falla, debe informarse al cliente adecuadamente.
+El servidor debe responder rápidamente a los comandos iniciales, como PING, para evitar desconexiones.
+Formato de los Mensajes:
+
+Cada mensaje IRC termina con \r\n.
+Los comandos y mensajes deben seguir estrictamente el formato para que HexChat y otros clientes los interpreten correctamente.
+Aspectos Importantes para tu Proyecto
+Secuencia de Autenticación: HexChat espera recibir respuestas específicas en un orden particular después de enviar PASS, NICK, y USER.
+Respuestas de Bienvenida: Asegúrate de enviar RPL_WELCOME, RPL_YOURHOST, RPL_CREATED, y RPL_MYINFO después de que el cliente se haya autenticado completamente.
+Gestión de Errores: Siempre responde con códigos de error adecuados si algo sale mal (e.g., nick en uso, comandos fuera de secuencia).
+Manejo de Canales: HexChat intenta unirse a canales automáticamente (JOIN #general). Asegúrate de que tu servidor maneje correctamente los comandos de canal.
