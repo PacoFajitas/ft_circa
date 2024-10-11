@@ -43,6 +43,16 @@ const std::map<Client *, UserRole> Channel::getUsers() const
 //     std::cout << " |"<< std::endl; // Para terminar la línea después de imprimir
 // }
 
+// Concatenates 2 Client vectors (Hacer con un template pls gracias y meter en archivo de utils)
+std::vector<Client *>concatenateVectors(std::vector<Client *>v1, std::vector<Client *>v2)
+{
+    if (v1.size() > 0 && v2.size() > 0)
+        v1.insert(v1.end(), v2.begin(), v2.end());
+    else if (v2.size() > 0)
+        return (v2);
+    return (v1);
+}
+
 // Returns a vector of Clients* with the selected role (PARTICIPANT, OPERATOR, INVITED, INCHANNEL, ALL)
 std::vector<Client *> Channel::getUsersWithRole(std::string mode)
 {
@@ -54,22 +64,19 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
         std::vector<Client *> ret2;
         ret = getUsersWithRole("PARTICIPANT");
         ret2 = getUsersWithRole("OPERATOR");
-        if (ret.size() > 0 && ret2.size() > 0)
-            ret.insert(ret.end(), ret2.begin(), ret2.end());
-        else if (ret2.size() > 0)
-            return (ret2);
-        return (ret);
+        return (concatenateVectors(ret, ret2));
     }
     else if (mode == "ALL")
     {
         std::vector<Client *> ret2;
         ret = getUsersWithRole("INCHANNEL");
         ret2 = getUsersWithRole("INVITED");
-        if (ret.size() > 0 && ret2.size() > 0)
-            ret.insert(ret.end(), ret2.begin(), ret2.end());
-        else if (ret2.size() > 0)
-            return (ret2);
-        return (ret);
+        return (concatenateVectors(ret, ret2));
+        // if (ret.size() > 0 && ret2.size() > 0)
+        //     ret.insert(ret.end(), ret2.begin(), ret2.end());
+        // else if (ret2.size() > 0)
+        //     return (ret2);
+        // return (ret);
     }
 
     if (mode == "PARTICIPANT")
@@ -79,7 +86,6 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
     else if (mode == "INVITED")
         tag = INVITED;
 
-   
     std::map<Client *, UserRole>::iterator it;
     it = users.begin();
     while (it != users.end())
