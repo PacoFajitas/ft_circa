@@ -1,6 +1,7 @@
 #include "channel.hpp"
 #include "client.hpp"
 #include "server.hpp"
+#include "utils.hpp"
 
 Channel::Channel(const std::string& channel_name, Server& srv, Client &client) : name(channel_name), server(srv) 
 {
@@ -44,14 +45,14 @@ const std::map<Client *, UserRole> Channel::getUsers() const
 // }
 
 // Concatenates 2 Client vectors (Hacer con un template pls gracias y meter en archivo de utils)
-std::vector<Client *>concatenateVectors(std::vector<Client *>v1, std::vector<Client *>v2)
-{
-    if (v1.size() > 0 && v2.size() > 0)
-        v1.insert(v1.end(), v2.begin(), v2.end());
-    else if (v2.size() > 0)
-        return (v2);
-    return (v1);
-}
+// std::vector<Client *>concatenateVectors(std::vector<Client *>v1, std::vector<Client *>v2)
+// {
+//     if (v1.size() > 0 && v2.size() > 0)
+//         v1.insert(v1.end(), v2.begin(), v2.end());
+//     else if (v2.size() > 0)
+//         return (v2);
+//     return (v1);
+// }
 
 // Returns a vector of Clients* with the selected role (PARTICIPANT, OPERATOR, INVITED, INCHANNEL, ALL)
 std::vector<Client *> Channel::getUsersWithRole(std::string mode)
