@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include "server.hpp"
+#include "client.hpp"
 #include "responses.hpp"
 #include <iomanip> // Añade esta línea para usar std::setw y std::hex
 #include <cstdlib>  // Para usar atoi
@@ -98,3 +99,16 @@ bool isUserOrChannelExists(const std::string& target) {
     return true;
 }
 
+void printClientVector(std::vector<Client *> arg)
+{
+    for (std::vector<Client *>::iterator it = arg.begin(); it != arg.end(); it++)
+    {
+        if (*(it))
+        {
+            if((*it)->isFullyRegistered())
+                std::cout << "El cliente tiene el user:" << (*it)->getUsername() << " y el nick: " << (*it)->getNickname() << std::endl;
+        }
+        
+    }
+    
+}

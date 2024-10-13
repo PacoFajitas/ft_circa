@@ -73,11 +73,6 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
         ret = getUsersWithRole("INCHANNEL");
         ret2 = getUsersWithRole("INVITED");
         return (concatenateVectors(ret, ret2));
-        // if (ret.size() > 0 && ret2.size() > 0)
-        //     ret.insert(ret.end(), ret2.begin(), ret2.end());
-        // else if (ret2.size() > 0)
-        //     return (ret2);
-        // return (ret);
     }
 
     if (mode == "PARTICIPANT")
@@ -95,10 +90,26 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
             ret.push_back(it->first);
         ++it;
     }
-    // printClientVector(ret);
+    printClientVector(ret);
     return (ret);
 }
-
+//Estas dos funciones se pueden juntar y hacer una generica 
+//para saber si cualquier usuario pertenece a cualquier rol
+bool	Channel::isUserRole(Client& client, std::string role)
+{
+    std::vector<Client *>aux;
+    aux = getUsersWithRole(role);
+    if (aux.empty())
+        return (false);
+    std::vector<Client *>::iterator it = aux.begin();
+    while (it != aux.end())
+    {
+        if ((*it)->getNickname() == client.getNickname())
+            return (true);
+        ++it;
+    }
+    return (false);
+}
 bool Channel::getClientInvited(Client &client)
 {
     std::vector<Client *> ret;
@@ -196,9 +207,7 @@ void	Channel::dummyUseServer() {
 // {
 //     if (mode)
 //     {
-//         ChannelPatata( )
 //     }
-    
 // }
 bool Channel::hasSentModeToClient(const Client& client) {
     return clientsWithModeSent.find(client.getSocketFD()) != clientsWithModeSent.end();

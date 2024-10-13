@@ -31,7 +31,7 @@ class Channel {
 		const	std::string& getTopic() const;
 		void	setTopic(const std::string& newTopic);
 		void	setRole(std::string user,  UserRole rol);
-
+		bool	isUserRole(Client& client, std::string);
 
 		// METHODS
 
