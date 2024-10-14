@@ -32,9 +32,14 @@ class Channel {
 		void	setTopic(const std::string& newTopic);
 		void	setRole(std::string user,  UserRole rol);
 		bool	isUserRole(Client& client, std::string);
+		const	std::string	getAllModes() const; 
+		const	int	getLimitUsers() const; 
+		const	std::string	getPassword() const;
+
 
 		// METHODS
 
+		bool	isUserInChannel(std::string nick);
 		void	manageUser(Client* client, UserRole role, bool add);
 		void	dummyUseServer();
 		bool	hasSentModeToClient(const Client& client);
@@ -46,6 +51,8 @@ class Channel {
 		std::string topic;
 		std::map<Client*, UserRole> users;
 		std::map<char, bool> _modes;
+		int	limitUsers;
+		std::string password;
 		Server& server;
 		std::set<int> clientsWithModeSent;
 

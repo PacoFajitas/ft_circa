@@ -53,7 +53,7 @@
 #define RPL_CHANNELMODEIS(servername, nickname, channel, flag) \
     (std::string(":" + servername + " 324 " + nickname + " " + channel + " " + flag))
 #define ERR_KEYSET(servername, channel) (std::string(":" + servername + " 467 " + channel + " :Channel key already set"))
-#define ERR_UNKNOWNMODE(servername, channel, flag) (std::string(":" + servername + " 472 " + flag + " :is unknown mode char to me for " + channel))
+#define ERR_UNKNOWNMODE(servername, user, flag) (std::string(":" + servername + " " + user + " 472 " + flag + " :is unknown mode char to me for "))
 
 // INVITE
 #define ERR_USERONCHANNEL(servername, nickname, channel) \

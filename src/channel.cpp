@@ -3,6 +3,7 @@
 #include "server.hpp"
 #include "utils.hpp"
 
+//El modo +o no es un modo de canal es para dar o quitar permisos de operador a un cliente en concreto dentro de cada canal
 Channel::Channel(const std::string& channel_name, Server& srv, Client &client) : name(channel_name), server(srv) 
 {
 	std::cout << "Canal creado: " << name << std::endl;
@@ -10,12 +11,21 @@ Channel::Channel(const std::string& channel_name, Server& srv, Client &client) :
     _modes['i'] = false;
     _modes['t'] = false;
     _modes['k'] = false;
-    _modes['o'] = false;
     _modes['l'] = false;
     //poner los modos a false:D
 }
 
 // GETERS AND SETERS
+
+const	int	Channel::getLimitUsers() const
+{
+    return(limitUsers);
+}
+
+const	std::string	Channel::getPassword() const
+{
+    return(password);
+}
 
 // Returns the name of the channel
 const	std::string& Channel::getName() const 
@@ -28,6 +38,27 @@ const	bool& Channel::getMode(char mode) const
 {
     std::map<char, bool>::const_iterator iter = _modes.find(mode);
     return iter->second;
+}
+
+//returns the flags of all the activated modes in a string
+//Example: +ik
+const	std::string Channel::getAllModes() const 
+{
+    std::string ret = "+";
+    
+    if(_modes.at('i') == true)
+        ret += 'i';
+    if (_modes.at('t') == true)
+        ret += 't';
+    if (_modes.at('l') == true)
+        ret += 'l';
+    if (_modes.at('k') == true)
+        ret += 'k';
+    if (_modes.at('l') == true)
+        ret += " " + this->getLimitUsers();
+    if (_modes.at('k') == true)
+        ret += " " + this->getPassword();
+    return (ret);
 }
 
 // Returns the map with Clients* and UserRole
@@ -53,6 +84,22 @@ const std::map<Client *, UserRole> Channel::getUsers() const
 //         return (v2);
 //     return (v1);
 // }
+
+//Devuelve true o false dependiendo si el nick passado por params esta en el canal
+bool	Channel::isUserInChannel(std::string nick)
+{
+    std::map<Client *, UserRole>::iterator it;
+    it = users.begin();
+    while (it != users.end())
+    {
+        if(it->first->getNickname() == nick)
+            return true;
+        ++it;
+    }
+    return false;    
+}
+
+
 
 // Returns a vector of Clients* with the selected role (PARTICIPANT, OPERATOR, INVITED, INCHANNEL, ALL)
 std::vector<Client *> Channel::getUsersWithRole(std::string mode)

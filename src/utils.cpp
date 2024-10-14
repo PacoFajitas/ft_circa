@@ -107,8 +107,6 @@ void printClientVector(std::vector<Client *> arg)
         {
             if((*it)->isFullyRegistered())
                 std::cout << "El cliente tiene el user:" << (*it)->getUsername() << " y el nick: " << (*it)->getNickname() << std::endl;
-        }
-        
+        }   
     }
-    
 }
