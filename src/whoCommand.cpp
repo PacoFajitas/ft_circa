@@ -19,11 +19,10 @@ void handleWhoCommand(Client& client, const std::string& channelName, Server& se
                                   " " + channelName + " " + users[i]->getUsername() + " " + 
                                   users[i]->getHostname() + " " + server.getServerName() + " " +
                                   users[i]->getNickname();
-        if (channel->isUserRole(client, "OPERATOR"))
-            whoReplyMsg += " @ ";
-        else
-            whoReplyMsg += " H ";
-         whoReplyMsg += ":0 " + users[i]->getRealname();
+        whoReplyMsg += " H";
+        if (channel->isUserRole(*users[i], "OPERATOR"))
+            whoReplyMsg += "@";
+         whoReplyMsg += " :0 " + users[i]->getRealname();
         server.sendResponse(client.getSocketFD(), whoReplyMsg);
     }
 

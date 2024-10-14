@@ -7,7 +7,7 @@
 
 bool handleUserCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
     if (tokens.size() < 5) {
-        server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS("USER"));
+        server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "USER"));
         return false;
     }
 

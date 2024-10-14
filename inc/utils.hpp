@@ -15,8 +15,17 @@ std::string convertToCRLF(const std::string& input);
 
 // Declaración de la función splitString
 std::vector<std::string> splitString(const std::string& input, const std::string& delimiter);
+
 template <typename T>
-std::vector<T>concatenateVectors(std::vector<T>v1, std::vector<T>v2);
+std::vector<T>concatenateVectors(std::vector<T>v1, std::vector<T>v2)
+{
+    if (v1.size() > 0 && v2.size() > 0)
+        v1.insert(v1.end(), v2.begin(), v2.end());
+    else if (v2.size() > 0)
+        return (v2);
+    return (v1);
+}
+
 //bool isNicknameInUse(const std::string& nickname);
 bool isUserOrChannelExists(const std::string& target);
 

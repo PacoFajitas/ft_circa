@@ -3,7 +3,7 @@
 
 bool handlePassCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
     if (tokens.size() < 2) {
-        server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS("PASS"));
+        server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "PASS"));
         return false;
     }
 

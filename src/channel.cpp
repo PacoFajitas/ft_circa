@@ -8,16 +8,17 @@ Channel::Channel(const std::string& channel_name, Server& srv, Client &client) :
 {
 	std::cout << "Canal creado: " << name << std::endl;
     manageUser(&client, OPERATOR, true);
-    _modes['i'] = false;
-    _modes['t'] = false;
-    _modes['k'] = false;
-    _modes['l'] = false;
+    modes['i'] = false;
+    modes['t'] = false;
+    modes['k'] = false;
+    modes['l'] = false;
+    topic = "";
     //poner los modos a false:D
 }
 
 // GETERS AND SETERS
 
-const	int	Channel::getLimitUsers() const
+int	Channel::getLimitUsers() const
 {
     return(limitUsers);
 }
@@ -36,7 +37,7 @@ const	std::string& Channel::getName() const
 // Returns if the selected mode is active or not
 const	bool& Channel::getMode(char mode) const 
 {
-    std::map<char, bool>::const_iterator iter = _modes.find(mode);
+    std::map<char, bool>::const_iterator iter = modes.find(mode);
     return iter->second;
 }
 
@@ -45,18 +46,20 @@ const	bool& Channel::getMode(char mode) const
 const	std::string Channel::getAllModes() const 
 {
     std::string ret = "+";
+    std::stringstream str;
+    str << this->getLimitUsers();
     
-    if(_modes.at('i') == true)
+    if(modes.at('i') == true)
         ret += 'i';
-    if (_modes.at('t') == true)
+    if (modes.at('t') == true)
         ret += 't';
-    if (_modes.at('l') == true)
+    if (modes.at('l') == true)
         ret += 'l';
-    if (_modes.at('k') == true)
+    if (modes.at('k') == true)
         ret += 'k';
-    if (_modes.at('l') == true)
-        ret += " " + this->getLimitUsers();
-    if (_modes.at('k') == true)
+    if (modes.at('l') == true)
+        ret += " " + str.str();
+    if (modes.at('k') == true)
         ret += " " + this->getPassword();
     return (ret);
 }
@@ -66,24 +69,6 @@ const std::map<Client *, UserRole> Channel::getUsers() const
 {
     return users;
 }
-
-// void printClientVector(const std::vector<Client *>& vec) {
-//     std::cout << "Client Vector Size: " << vec.size() << " Client Vector: ";
-//     for (size_t i = 0; i < vec.size(); ++i) {
-//         std::cout << vec[i]->getNickname() << " ";
-//     }
-//     std::cout << " |"<< std::endl; // Para terminar la línea después de imprimir
-// }
-
-// Concatenates 2 Client vectors (Hacer con un template pls gracias y meter en archivo de utils)
-// std::vector<Client *>concatenateVectors(std::vector<Client *>v1, std::vector<Client *>v2)
-// {
-//     if (v1.size() > 0 && v2.size() > 0)
-//         v1.insert(v1.end(), v2.begin(), v2.end());
-//     else if (v2.size() > 0)
-//         return (v2);
-//     return (v1);
-// }
 
 //Devuelve true o false dependiendo si el nick passado por params esta en el canal
 bool	Channel::isUserInChannel(std::string nick)
@@ -98,8 +83,6 @@ bool	Channel::isUserInChannel(std::string nick)
     }
     return false;    
 }
-
-
 
 // Returns a vector of Clients* with the selected role (PARTICIPANT, OPERATOR, INVITED, INCHANNEL, ALL)
 std::vector<Client *> Channel::getUsersWithRole(std::string mode)
@@ -142,7 +125,7 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
 }
 //Estas dos funciones se pueden juntar y hacer una generica 
 //para saber si cualquier usuario pertenece a cualquier rol
-bool	Channel::isUserRole(Client& client, std::string role)
+bool	Channel::isUserRole(const Client& client, std::string role)
 {
     std::vector<Client *>aux;
     aux = getUsersWithRole(role);
@@ -150,21 +133,6 @@ bool	Channel::isUserRole(Client& client, std::string role)
         return (false);
     std::vector<Client *>::iterator it = aux.begin();
     while (it != aux.end())
-    {
-        if ((*it)->getNickname() == client.getNickname())
-            return (true);
-        ++it;
-    }
-    return (false);
-}
-bool Channel::getClientInvited(Client &client)
-{
-    std::vector<Client *> ret;
-    ret = getUsersWithRole("INVITED");
-    if (ret.empty())
-        return (false);
-    std::vector<Client *>::iterator it = ret.begin();
-    while (it != ret.end())
     {
         if ((*it)->getNickname() == client.getNickname())
             return (true);
@@ -229,6 +197,30 @@ void Channel::setRole(std::string user,  UserRole rol)
         ERR_USERNOTINCHANNEL(server.getServerName(), user, this->name);
 }
 
+// void    Channel::setMode(char mode, bool active)
+// {
+//     if (active == false && getMode(mode) == false)
+//         return ;
+//     if (active == true && getMode(mode) == true)
+//         return ;
+//     if (active == true)
+//     {
+//         if (mode == 'i')
+//             modes['i'] = true;
+//         else if (mode == 't')
+//             modes['t'] = true;
+//         else if (mode == 'k')
+//         {
+//             modes['k'] == true;
+//             key = msg;
+//         }
+//         else if (mode == 'l')
+//         {
+//             mode['l'] = true;
+//             limitUsers = atoi(msg);
+//         }
+//     }
+// }
 // METHODS
 
 // Adds/Deletes a Client from the users map

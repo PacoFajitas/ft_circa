@@ -26,15 +26,15 @@ class Channel {
 		const	bool& getMode(char mode) const;
 		const std::map<Client *, UserRole> getUsers() const;
 		std::vector<Client *>getUsersWithRole(std::string mode);
-		bool getClientInvited(Client &client);
 		std::set<int>getClientFDs() const;
 		const	std::string& getTopic() const;
 		void	setTopic(const std::string& newTopic);
 		void	setRole(std::string user,  UserRole rol);
-		bool	isUserRole(Client& client, std::string);
+		bool	isUserRole(const Client& client, std::string);
 		const	std::string	getAllModes() const; 
-		const	int	getLimitUsers() const; 
+		int	getLimitUsers() const; 
 		const	std::string	getPassword() const;
+		// void    setMode(char mode, bool active);
 
 
 		// METHODS
@@ -50,7 +50,7 @@ class Channel {
 		std::string name;
 		std::string topic;
 		std::map<Client*, UserRole> users;
-		std::map<char, bool> _modes;
+		std::map<char, bool> modes;
 		int	limitUsers;
 		std::string password;
 		Server& server;
