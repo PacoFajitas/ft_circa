@@ -54,7 +54,7 @@
     (std::string(":" + servername + " 324 " + nickname + " " + channel + " " + flag))
 #define ERR_KEYSET(servername, channel) (std::string(":" + servername + " 467 " + channel + " :Channel key already set"))
 #define ERR_UNKNOWNMODE(servername, user, flag) (std::string(":" + servername + " " + user + " 472 " + flag + " :is unknown mode char to me for "))
-#define ERR_UMODEUNKNOWNFLAG(client)(std::string ("501: ") + client + " :Unknown MODE flag")
+// #define ERR_UMODEUNKNOWNFLAG(client)(std::string ("501: ") + client + " :Unknown MODE flag")
 
 // INVITE
 #define ERR_USERONCHANNEL(servername, nickname, channel) \
