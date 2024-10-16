@@ -32,3 +32,15 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+//Main chorra que normalmente estara comentado para probar funciones pequenas
+
+// int main(int a, char **b)
+// {
+//     if (a==0)
+//         return 1;
+//     if (isStringNum(b[1]))
+//     {
+//         std::cout << "Yasss queeen" << std::endl;
+//     }
+    
+// }

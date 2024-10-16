@@ -31,5 +31,7 @@ bool isUserOrChannelExists(const std::string& target);
 
 void printClientVector(std::vector<Client *> arg);
 
+bool isStringNum(std::string str);
+
 #endif // UTILS_HPP
 

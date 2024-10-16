@@ -196,31 +196,65 @@ void Channel::setRole(std::string user,  UserRole rol)
     if(it == users.end())
         ERR_USERNOTINCHANNEL(server.getServerName(), user, this->name);
 }
+void    Channel::setMode(char mode, bool active)
+{
+     if (active == false && getMode(mode) == false)
+        return ;
+    if (active == true && getMode(mode) == true)
+        return ;
+    if (active)
+    {
+        if (mode == 'i')
+            modes['i'] = true;
+        else if (mode == 't')
+            modes['t'] = true;
+    }
+    else
+    {
+        if (mode == 'i')
+            modes['i'] = false;
+        else if (mode == 't')
+            modes['t'] = false;
+    }
+    
+}
 
-// void    Channel::setMode(char mode, bool active)
-// {
-//     if (active == false && getMode(mode) == false)
-//         return ;
-//     if (active == true && getMode(mode) == true)
-//         return ;
-//     if (active == true)
-//     {
-//         if (mode == 'i')
-//             modes['i'] = true;
-//         else if (mode == 't')
-//             modes['t'] = true;
-//         else if (mode == 'k')
-//         {
-//             modes['k'] == true;
-//             key = msg;
-//         }
-//         else if (mode == 'l')
-//         {
-//             mode['l'] = true;
-//             limitUsers = atoi(msg);
-//         }
-//     }
-// }
+
+void    Channel::setMode(char mode, bool active, std::string msg)
+{
+    if (active == false && getMode(mode) == false)
+        return ;
+    if (active == true && getMode(mode) == true)
+        return ;
+    if (active == true)
+    {
+        if (mode == 'k')
+        {
+            modes['k'] = true;
+            password = msg;
+        }
+        else if (mode == 'l')
+        {
+            modes['l'] = true;
+            limitUsers = atoi(msg.c_str());
+        }
+        else if(mode == 'o')
+        {
+            this->setRole(msg, OPERATOR);
+        }
+    }
+    else
+    {
+         if (mode == 'k')
+            modes['k'] = false;
+        else if (mode == 'l')
+            modes['l'] = false; 
+        else if(mode == 'o')
+        {
+            this->setRole(msg, PARTICIPANT);
+        }
+    }
+}
 // METHODS
 
 // Adds/Deletes a Client from the users map

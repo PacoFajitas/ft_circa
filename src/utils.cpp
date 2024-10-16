@@ -110,3 +110,15 @@ void printClientVector(std::vector<Client *> arg)
         }   
     }
 }
+//Funcion en utils.cpp, deuelve true si toda la string son nums
+//(si entra con signo dara siempre false)
+
+bool isStringNum(std::string str)
+{
+    for (ulong i = 0; i < str.length(); i++)
+    {
+        if (!isdigit(str[i]))
+            return false;
+    }
+    return true;
+}

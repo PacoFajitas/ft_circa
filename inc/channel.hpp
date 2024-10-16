@@ -34,7 +34,9 @@ class Channel {
 		const	std::string	getAllModes() const; 
 		int	getLimitUsers() const; 
 		const	std::string	getPassword() const;
-		// void    setMode(char mode, bool active);
+		void    setMode(char mode, bool active);
+		void    setMode(char mode, bool active, std::string msg);
+
 
 
 		// METHODS

@@ -1,6 +1,7 @@
 #include "channel.hpp"
 #include "server.hpp"
 #include "client.hpp"
+#include "utils.hpp"
 #include <iostream>
 
 #ifndef MODECOMMAND_HPP

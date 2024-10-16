@@ -4,16 +4,7 @@
 #include "client.hpp"
 #include "channel.hpp"
 
-//Estaria bien moverlo a su sitio y tal cuanndo este guay la funcion :D
-bool isStringNum(std::string str)
-{
-    for (ulong i = 0; i < str.length(); i++)
-    {
-        if (!isdigit(str[i]))
-            return false;
-    }
-    return true;
-}
+
 
 void handleModeCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
     if (tokens.size() < 2) {
@@ -52,10 +43,7 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
         else if (mode.at(0) == '+')
             active = true;
         else
-        {
-            //si no tiene signo y no existe tira error
-            // si no tiene signo y existe devuelve la lista de modos activos
-        }
+            server.sendResponse(client.getSocketFD(), "ERR_UNKNOWNERROR (400) : Sign needed to set modes");
         for (ulong i = 1; i < mode.length(); i++)
         {
             if (mode[i] == 'k' || mode[i] == 'o') //modificar isalnum por la funcion de valildchars
@@ -65,17 +53,24 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             else if (mode[i] == 'l' && (tokens.size() - 3 - (numPar + 1) >= 0) && isStringNum(tokens[3 + numPar + 1])) //:servidor 467 <tu_nick> #canal :Channel limit is not a valid number
                 numPar++;
             else if (mode[i] == 'l' && (tokens.size() - 3 - (numPar + 1) >= 0) && !isStringNum(tokens[3 + numPar + 1])) 
-                server.sendResponse(client.getSocketFD(), "aaaaaaa");
-//                 ERR_UNKNOWNERROR (400) 
-//   "<client> <command>{ <subcommand>} :<info>"
-// Indicates that the given command/subcommand could not be processed. <subcommand> may repeat for more specific subcommands.
-
-
-                //:servidor 467 <tu_nick> #canal :Channel limit is not a valid number
+            {
+                server.sendResponse(client.getSocketFD(), "ERR_UNKNOWNERROR (400) : Please put numbers as arguments for key +l");
+                return ;
+            }
         }
         if (numPar <= tokens.size() - 3)
         {
-            // ejecuta
+            numPar = 0;
+            for (size_t i = 1; i < mode.length(); i++)
+            {
+                if (mode.at(i) == 't' || mode.at(i) == 'i')
+                    channel->setMode(mode.at(i), active);
+                else if(mode.at(i) == 'o' || mode.at(i) == 'l' || mode.at(i) == 'k')
+                {
+                    channel->setMode(mode.at(i), active, tokens[3 + numPar + 1]);
+                }
+            }
+            
         }        
         // server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), mode[i]));
         }
