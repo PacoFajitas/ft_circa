@@ -36,6 +36,7 @@ class Channel {
 		const	std::string	getPassword() const;
 		void    setMode(char mode, bool active);
 		void    setMode(char mode, bool active, std::string msg);
+		Client	*getUser(std::string nick);
 
 
 

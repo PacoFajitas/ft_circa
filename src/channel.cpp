@@ -255,6 +255,20 @@ void    Channel::setMode(char mode, bool active, std::string msg)
         }
     }
 }
+
+
+Client	*Channel::getUser(std::string user)
+{
+    std::map<Client *, UserRole>::iterator it = users.begin();
+    while(it != users.end())
+    {
+        if (it->first->getUsername() == user)
+            return(it->first);
+        it++;  
+    }
+    return NULL;
+}
+
 // METHODS
 
 // Adds/Deletes a Client from the users map

@@ -11,7 +11,6 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
         return;
     }
-
     std::string channelName = tokens[1];
     Channel* channel = server.getChannel(channelName);
     
@@ -30,10 +29,8 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     }
 
     std::string mode = tokens[2];
-    if(tokens.size() > 2 && mode.length() < 2)
-    {
+    if(tokens.size() - 3 > 2 && mode.length() < 2)
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
-    }
     else
     {
         bool active;
@@ -57,9 +54,16 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
                 server.sendResponse(client.getSocketFD(), "ERR_UNKNOWNERROR (400) : Please put numbers as arguments for key +l");
                 return ;
             }
+            else if( mode[i] != 't' && mode [i] != 'i')
+            {
+                server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), mode[i]));
+                return ;
+            }
+
         }
-        if (numPar <= tokens.size() - 3)
+        if (numPar >= tokens.size() - 3)
         {
+            std::cout << "holi(?)" << std::endl;
             numPar = 0;
             for (size_t i = 1; i < mode.length(); i++)
             {
@@ -68,13 +72,11 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
                 else if(mode.at(i) == 'o' || mode.at(i) == 'l' || mode.at(i) == 'k')
                 {
                     channel->setMode(mode.at(i), active, tokens[3 + numPar + 1]);
+                    numPar++;
                 }
             }
-            
-        }        
-        // server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), mode[i]));
         }
-    
+    }
     
     // Solo enviar el modo si no se ha enviado aún o si el cliente lo solicita explícitamente
     if (!channel->hasSentModeToClient(client)) 
