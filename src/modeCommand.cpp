@@ -48,7 +48,10 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
                 numPar++;
             }
             else if (mode[i] == 'l' && (tokens.size() - 3 - (numPar + 1) >= 0) && isStringNum(tokens[3 + numPar + 1])) //:servidor 467 <tu_nick> #canal :Channel limit is not a valid number
+            {
+                std::cout << "Holiiiiiiiiiiiii"<<   tokens[3+numPar] << std::endl;
                 numPar++;
+            }
             else if (mode[i] == 'l' && (tokens.size() - 3 - (numPar + 1) >= 0) && !isStringNum(tokens[3 + numPar + 1])) 
             {
                 server.sendResponse(client.getSocketFD(), "ERR_UNKNOWNERROR (400) : Please put numbers as arguments for key +l");
@@ -56,6 +59,7 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             }
             else if( mode[i] != 't' && mode [i] != 'i')
             {
+                std::cout << "Holiiiiiiiiiiiii" << std::endl;
                 server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), mode[i]));
                 return ;
             }

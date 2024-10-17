@@ -48,7 +48,7 @@ const	std::string Channel::getAllModes() const
     std::string ret = "+";
     std::stringstream str;
     str << this->getLimitUsers();
-    
+    std::cout << str.str() << std::endl;
     if(modes.at('i') == true)
         ret += 'i';
     if (modes.at('t') == true)
@@ -60,7 +60,7 @@ const	std::string Channel::getAllModes() const
     if (modes.at('l') == true)
         ret += " " + str.str();
     if (modes.at('k') == true)
-        ret += " " + this->getPassword();
+        ret += " " + (this->getPassword());
     return (ret);
 }
 
