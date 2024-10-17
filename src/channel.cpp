@@ -13,6 +13,8 @@ Channel::Channel(const std::string& channel_name, Server& srv, Client &client) :
     modes['k'] = false;
     modes['l'] = false;
     topic = "";
+    password = "";
+    limitUsers = 0;
     //poner los modos a false:D
 }
 
@@ -47,8 +49,8 @@ const	std::string Channel::getAllModes() const
 {
     std::string ret = "+";
     std::stringstream str;
-    str << this->getLimitUsers();
-    std::cout << str.str() << std::endl;
+    str << limitUsers;
+    std::string limitstr = str.str();
     if(modes.at('i') == true)
         ret += 'i';
     if (modes.at('t') == true)
@@ -58,7 +60,10 @@ const	std::string Channel::getAllModes() const
     if (modes.at('k') == true)
         ret += 'k';
     if (modes.at('l') == true)
-        ret += " " + str.str();
+    {
+        ret += " ";
+        ret += limitstr;
+    }
     if (modes.at('k') == true)
         ret += " " + (this->getPassword());
     return (ret);
@@ -198,7 +203,7 @@ void Channel::setRole(std::string user,  UserRole rol)
 }
 void    Channel::setMode(char mode, bool active)
 {
-     if (active == false && getMode(mode) == false)
+    if (active == false && getMode(mode) == false)
         return ;
     if (active == true && getMode(mode) == true)
         return ;

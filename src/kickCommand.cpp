@@ -6,7 +6,7 @@
 /*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 17:38:48 by tfiguero          #+#    #+#             */
-/*   Updated: 2024/10/16 20:45:42 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/17 18:31:58 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ void handleKickCommand(Client& client, const std::vector<std::string>& tokens, S
 	else
 	{
 		//no puede ser token[2] pq necesita ser de tipo cliente. hacer un geter para esto que devuelva el obj cliente segun el nick que entre por parametro
-		channel->manageUser(channel->getUser(tokens[2]), PARTICIPANT, false);
 		std::string resp = "User: " + tokens[2] + " has been kicked from channel: " + channel->getName();
+		channel->manageUser(channel->getUser(tokens[2]), PARTICIPANT, false);
 		std::vector<Client*>::iterator it = channel->getUsersWithRole("INCHANNEL").begin();
 		while (it != channel->getUsersWithRole("INCHANNEL").end())
 		{

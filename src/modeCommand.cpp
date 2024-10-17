@@ -41,15 +41,17 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             active = true;
         else
             server.sendResponse(client.getSocketFD(), "ERR_UNKNOWNERROR (400) : Sign needed to set modes");
+        bool checkargs = false;
         for (ulong i = 1; i < mode.length(); i++)
         {
             if (mode[i] == 'k' || mode[i] == 'o') //modificar isalnum por la funcion de valildchars
             {
                 numPar++;
+                checkargs = true;
             }
             else if (mode[i] == 'l' && (tokens.size() - 3 - (numPar + 1) >= 0) && isStringNum(tokens[3 + numPar + 1])) //:servidor 467 <tu_nick> #canal :Channel limit is not a valid number
             {
-                std::cout << "Holiiiiiiiiiiiii"<<   tokens[3+numPar] << std::endl;
+                checkargs = true;
                 numPar++;
             }
             else if (mode[i] == 'l' && (tokens.size() - 3 - (numPar + 1) >= 0) && !isStringNum(tokens[3 + numPar + 1])) 
@@ -59,24 +61,31 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             }
             else if( mode[i] != 't' && mode [i] != 'i')
             {
-                std::cout << "Holiiiiiiiiiiiii" << std::endl;
                 server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), mode[i]));
                 return ;
             }
-
         }
-        if (numPar >= tokens.size() - 3)
+        // MODE #channel +iiiolkl
+        // MODE #channel +iiiolk argO argL argK argL etc. -->numPar=4+3 tokensize >= 7
+        std::cout << "MODE LENGTH    " << mode.length() << std::endl;
+        if (tokens.size() < numPar + 3)
+        {
+            server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
+        }
+        else
         {
             std::cout << "holi(?)" << std::endl;
-            numPar = 0;
+            server.sendResponse(client.getSocketFD(), "Holi");
             for (size_t i = 1; i < mode.length(); i++)
             {
                 if (mode.at(i) == 't' || mode.at(i) == 'i')
+                {
                     channel->setMode(mode.at(i), active);
+                }
                 else if(mode.at(i) == 'o' || mode.at(i) == 'l' || mode.at(i) == 'k')
                 {
-                    channel->setMode(mode.at(i), active, tokens[3 + numPar + 1]);
-                    numPar++;
+                    channel->setMode(mode.at(i), active, tokens[i + 2]);
+                    numPar--;
                 }
             }
         }
