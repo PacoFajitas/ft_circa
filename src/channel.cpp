@@ -220,6 +220,14 @@ void    Channel::setMode(char mode, bool active)
             modes['i'] = false;
         else if (mode == 't')
             modes['t'] = false;
+        else if (mode == 'k')
+            modes['k'] = false;
+        else if (mode == 'l')
+        {
+            // std::cout << "tus muertos pisados" << std::endl;
+            modes['l'] = false;
+        }
+        
     }
     
 }
