@@ -258,14 +258,11 @@ void	Server::broadcastMessage(const std::string& message,
 	}
 }
 
-
-
-
-
-
-
-
-
+void Server::deleteChannel(std::string name)
+{
+    delete channels[name];
+    channels.erase(name);
+}
 
 
 const std::map<int, Client*>& Server::getClients() const {

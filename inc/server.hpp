@@ -49,6 +49,7 @@ public:
 	std::string	getServerName() const;
 	std::string	getPassword() const;
 	void broadcastMessage(const std::string& message, const std::set<int>& include_fds, const std::set<int>& exclude_fds);
+    void deleteChannel(std::string name);
 
 	const	std::map<int, Client*>& getClients() const;
 	Channel* getChannel(const std::string& channel_name);

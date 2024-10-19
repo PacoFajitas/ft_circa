@@ -6,7 +6,7 @@
 /*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 17:38:48 by tfiguero          #+#    #+#             */
-/*   Updated: 2024/10/17 18:31:58 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/19 22:53:01 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,30 @@ void handleKickCommand(Client& client, const std::vector<std::string>& tokens, S
 	if (tokens.size() < 3)
 		server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
 	Channel *channel = server.getChannel(tokens[1]);
+	std::string error;
 	if (!channel)
-		server.sendResponse(client.getSocketFD(), "ERR_NOSUCHCHANNEL (403) <client> <channel> :No such channel");
+		error = ERR_NOSUCHCHANNEL(channel->getName());
 	else if (!channel->isUserRole(client, "INCHANNEL"))
-		server.sendResponse(client.getSocketFD(), "ERR_NOTONCHANNEL (442) <client> <channel> :You're not on that channel");
+		error = ERR_NOTONCHANNEL(server.getServerName(), channel->getName());
 	else if (!channel->isUserRole(client, "OPERATOR"))
-		server.sendResponse(client.getSocketFD(), "ERR_CHANOPRIVSNEEDED (482) <client> <channel> :You're not channel operator");
+		error = ERR_CHANOPRIVSNEEDED(server.getServerName(), channel->getName());
 	else if (!channel->isUserInChannel(tokens[2]))
-		server.sendResponse(client.getSocketFD(), "ERR_USERNOTINCHANNEL (441) <client> <nick> <channel> :They aren't on that channel");
+		error = ERR_USERNOTINCHANNEL(server.getServerName(), tokens[2], channel->getName());
+	if(!error.empty())
+	{
+		server.sendResponse(client.getSocketFD(),error);
+		return ;
+	}
 	else
 	{
 		//no puede ser token[2] pq necesita ser de tipo cliente. hacer un geter para esto que devuelva el obj cliente segun el nick que entre por parametro
 		std::string resp = "User: " + tokens[2] + " has been kicked from channel: " + channel->getName();
 		channel->manageUser(channel->getUser(tokens[2]), PARTICIPANT, false);
+		if(channel->getUsers().empty())
+		{
+			server.deleteChannel(channel->getName());
+			return ;
+		}
 		std::vector<Client*>::iterator it = channel->getUsersWithRole("INCHANNEL").begin();
 		while (it != channel->getUsersWithRole("INCHANNEL").end())
 		{

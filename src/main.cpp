@@ -5,6 +5,7 @@
 #include "utils.hpp"
 #include "server.hpp"
 #include "client.hpp"
+#include "modeCommand.hpp"
 
 
 int main(int argc, char *argv[]) {
@@ -32,15 +33,29 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-//Main chorra que normalmente estara comentado para probar funciones pequenas
+// Main chorra que normalmente estara comentado para probar funciones pequenas
 
 // int main(int a, char **b)
 // {
-//     if (a==0)
-//         return 1;
-//     if (isStringNum(b[1]))
+//     (void)a;
+//     (void)b;
+//     Client test(1);
+//     std::vector<std::string> test2;
+//     std::vector<std::string> test3;
+//     test2.push_back("MODE");
+//     test2.push_back("#a");
+//     test2.push_back("+l");
+//     test2.push_back("MODE");
+//     test2.push_back("MODE");
+//     test2.push_back("MODE");
+//     test2.push_back("MODE");
+//     test2.push_back("MODE");
+//     test2.push_back("MODE");
+//     test2.push_back("MODE");
+
+//     test3 = getArgs(test2);
+//     for (size_t i = 0; i < test3.size(); i++)
 //     {
-//         std::cout << "Yasss queeen" << std::endl;
+//         std::cout << test3[i] << std::endl;
 //     }
-    
 // }

@@ -115,7 +115,8 @@ void printClientVector(std::vector<Client *> arg)
 
 bool isStringNum(std::string str)
 {
-    
+    if (str.length() == 0)
+        return false;    
     for (ulong i = 0; i < str.length(); i++)
     {
         if (!isdigit(str[i]))

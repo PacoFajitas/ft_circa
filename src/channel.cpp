@@ -237,8 +237,6 @@ void    Channel::setMode(char mode, bool active, std::string msg)
 {
     if (active == false && getMode(mode) == false)
         return ;
-    if (active == true && getMode(mode) == true)
-        return ;
     if (active == true)
     {
         if (mode == 'k')
@@ -253,7 +251,9 @@ void    Channel::setMode(char mode, bool active, std::string msg)
         }
         else if(mode == 'o')
         {
-            this->setRole(msg, OPERATOR);
+            if (isUserInChannel(msg))
+                this->setRole(msg, OPERATOR);
+            
         }
     }
     else

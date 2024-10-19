@@ -13,7 +13,7 @@
 #include "pongCommand.hpp"
 #include "whoCommand.hpp"
 #include "modeCommand.hpp"
-
+#include "partCommand.hpp"
 bool	requireRegistration(Client& client, Server& server) {
 	if (!client.isFullyRegistered()) {
 		server.sendResponse(client.getSocketFD(), ERR_NOTREGISTERED()); // Cliente no registrado
@@ -80,7 +80,12 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 			std::cout << "-----------------------------" << std::endl;
 			handleModeCommand(client, tokens, server);
 			}
-
+		else if(commandName == "PART"){
+			std::cout << "-----------------------------" << std::endl;
+			std::cout << "Processing PART command: " << command << std::endl;
+			std::cout << "-----------------------------" << std::endl;
+			handlePartCommand(client, tokens, server);
+			}
 		}
 	return (true);
 }
