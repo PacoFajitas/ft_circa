@@ -6,11 +6,12 @@
 /*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 18:27:07 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/19 22:53:27 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/21 16:57:57 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "partCommand.hpp"
+#include "utils.hpp"
 
 void handlePartCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
 {
@@ -29,12 +30,11 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 		return;
 	}
 	channel->manageUser(channel->getUser(client.getNickname()), PARTICIPANT, false);
-	std::cout << client.getNickname() << std::endl;
-	if (channel->getUsers().empty())
-	{
-		server.deleteChannel(channel->getName());
-		return ;
-	}
+	
+	printClientVector(channel->getUsersWithRole("INCHANNEL"));
+	
+	std::string partNotification = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname() + " PART " + channel->getName();
+
 	std::string resp = ":" + client.getNickname() + " PART " + channel->getName();
 	if (tokens.size() > 2)
 	{
@@ -44,4 +44,9 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 			resp += tokens[i];
 		}
 	}
+	server.sendResponse(client.getSocketFD(), partNotification);
+	if (channel->getUsers().empty())
+		server.deleteChannel(channel->getName());
+	else
+		channel->sendMessage(partNotification, client.getSocketFD());
 }

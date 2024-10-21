@@ -264,6 +264,26 @@ void	Server::broadcastMessage(const std::string& message,
 	}
 }
 
+void	Server::broadcastMessage(const std::string& message, 
+			const std::set<int>& include_fds = std::set<int>()) {
+        // Si include_fds está vacío, enviaremos a todos los clientes.
+	if (include_fds.empty()) {
+		for (std::map<int, Client*>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
+			int fd = it->first;
+			// Si fd no está en exclude_fds, enviamos el mensaje.
+			sendResponse(fd, message);
+		}
+	}
+	else {
+		// Si include_fds no está vacío, solo enviamos a esos fds.
+		for (std::set<int>::const_iterator it = include_fds.begin(); it != include_fds.end(); ++it) {
+			int fd = *it;
+			// Si fd no está en exclude_fds, enviamos el mensaje.
+				sendResponse(fd, message);
+		}
+	}
+}
+
 void Server::deleteChannel(std::string name)
 {
     delete channels[name];

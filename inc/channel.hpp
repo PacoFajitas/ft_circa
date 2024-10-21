@@ -29,7 +29,7 @@ class Channel {
 		std::set<int>getClientFDs() const;
 		const	std::string& getTopic() const;
 		void	setTopic(const std::string& newTopic);
-		void	setRole(std::string user,  UserRole rol);
+		void	setRole(std::string nick,  UserRole rol);
 		bool	isUserRole(const Client& client, std::string);
 		const	std::string	getAllModes() const; 
 		int	getLimitUsers() const; 
@@ -47,6 +47,7 @@ class Channel {
 		void	dummyUseServer();
 		bool	hasSentModeToClient(const Client& client);
 		void	setModeSentToClient(const Client& client);
+		void	sendMessage(const std::string& message, const int _fd);
 
 
 	private:

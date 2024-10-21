@@ -67,6 +67,7 @@ public:
     Client* getClientByNick(const std::string& nickname) const;
     void sendBinaryData(int client_fd, const std::vector<char>& data);
     void handleFileSendRequest(Client& client, const std::vector<std::string>& tokens);
+    void broadcastMessage(const std::string& message, const std::set<int>& include_fds);
 
 	~Server();
 

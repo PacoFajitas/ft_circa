@@ -125,7 +125,6 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
             ret.push_back(it->first);
         ++it;
     }
-    printClientVector(ret);
     return (ret);
 }
 //Estas dos funciones se pueden juntar y hacer una generica 
@@ -171,12 +170,12 @@ void	Channel::setTopic(const std::string& newTopic)
 }
 
 // Sets the role of a user
-void Channel::setRole(std::string user,  UserRole rol)
+void Channel::setRole(std::string nick,  UserRole rol)
 {
     std::map<Client *, UserRole>::iterator it = users.begin();
     while(it != users.end())
     {
-        if (it->first->getUsername() == user)
+        if (it->first->getNickname() == nick)
         {
             it->second = rol;
             return ;
@@ -190,16 +189,16 @@ void Channel::setRole(std::string user,  UserRole rol)
     while(it2 != temp.end())
     {
         
-        if(it2->second->getUsername() == user)
+        if(it2->second->getNickname() == nick)
             break ;
     }
     if (it2 == temp.end())
     {
-        ERR_NOSUCHNICK(server.getServerName(), user);
+        ERR_NOSUCHNICK(server.getServerName(), nick);
         return ;
     }
     if(it == users.end())
-        ERR_USERNOTINCHANNEL(server.getServerName(), user, this->name);
+        ERR_USERNOTINCHANNEL(server.getServerName(), nick, this->name);
 }
 void    Channel::setMode(char mode, bool active)
 {
@@ -270,12 +269,12 @@ void    Channel::setMode(char mode, bool active, std::string msg)
 }
 
 
-Client	*Channel::getUser(std::string user)
+Client	*Channel::getUser(std::string nick)
 {
     std::map<Client *, UserRole>::iterator it = users.begin();
     while(it != users.end())
     {
-        if (it->first->getUsername() == user)
+        if (it->first->getNickname() == nick)
             return(it->first);
         it++;  
     }
@@ -317,3 +316,13 @@ void Channel::setModeSentToClient(const Client& client) {
     clientsWithModeSent.insert(client.getSocketFD());
 }
 
+
+void    Channel::sendMessage(const std::string& message, const int _fd) {
+    for (std::map<Client *, UserRole>::const_iterator it = users.begin(); it != users.end(); ++it) {
+        int fd = it->first->getSocketFD();
+        // Si fd no está en exclude_fds, enviamos el mensaje.
+        if (fd != _fd) {
+            server.sendResponse(fd, message);
+        }
+    }
+}
