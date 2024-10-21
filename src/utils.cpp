@@ -124,3 +124,12 @@ bool isStringNum(std::string str)
     }
     return true;
 }
+
+std::string joinTokens(const std::vector<std::string>& tokens, size_t start) {
+	std::string result;
+	for (size_t i = start; i < tokens.size(); ++i) {
+		if (i > start) result += " ";
+		result += tokens[i];
+	}
+	return (result);
+}

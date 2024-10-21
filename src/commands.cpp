@@ -14,6 +14,8 @@
 #include "whoCommand.hpp"
 #include "modeCommand.hpp"
 #include "partCommand.hpp"
+#include "cscCommand.hpp"
+
 bool	requireRegistration(Client& client, Server& server) {
 	if (!client.isFullyRegistered()) {
 		server.sendResponse(client.getSocketFD(), ERR_NOTREGISTERED()); // Cliente no registrado

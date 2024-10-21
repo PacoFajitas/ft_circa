@@ -33,5 +33,7 @@ void printClientVector(std::vector<Client *> arg);
 
 bool isStringNum(std::string str);
 
+std::string joinTokens(const std::vector<std::string>& tokens, size_t start);
+
 #endif // UTILS_HPP
 

@@ -7,9 +7,10 @@
 #include <poll.h>
 #include <set>
 
+
 class Channel;
 class Client;
-
+class FileTransfer;
 class Server {
 private:
     int socket_fd;
@@ -20,6 +21,7 @@ private:
     std::vector<pollfd> poll_fds;
     std::map<int, Client*> clients;
 	std::map<std::string, Channel*> channels;
+    std::map<int, FileTransfer*> activeTransfers;
 
     void setupSignalHandler();
     void pollSockets();
@@ -56,6 +58,15 @@ public:
 	void addChannel(Channel* channel);
 	void    sendPing(Client& client);
 	std::vector<Client*> getChannelUsers(const std::string& channelName);
+    void handleAcceptFile(Client& client, const std::vector<std::string>& tokens);
+    void handleRejectFile(Client& client, const std::vector<std::string>& tokens);
+    void addFileTransfer(Client* sender, Client* recipient, const std::string& fileName, std::streamsize fileSize);
+    std::map<int, FileTransfer*>& getActiveTransfers();
+    FileTransfer* getFileTransfer(int clientFD);
+    void removeFileTransfer(int recipientFD);
+    Client* getClientByNick(const std::string& nickname) const;
+    void sendBinaryData(int client_fd, const std::vector<char>& data);
+    void handleFileSendRequest(Client& client, const std::vector<std::string>& tokens);
 
 	~Server();
 

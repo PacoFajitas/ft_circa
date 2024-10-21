@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 #include <csignal>
 #include <ctime>  // Incluir para manejo del tiempo
@@ -15,6 +16,11 @@
 #include "utils.hpp"
 #include "client.hpp"
 #include "channel.hpp"
+#include "privmsgCommand.hpp"
+#include "cscCommand.hpp"
+#include "fileTransfer.hpp"
+
+
 
 //Volatile para que no cachee sino que la consulte siempre
 //sig_atomic_t tipo de C y CPP para variables que pueden modificadarse en un manejador de señales,
@@ -290,6 +296,14 @@ void Server::cleanup() {
 		it->second = NULL;
 		std::cout << "Erasing channel: " << it->first << std::endl;
 	}
+    for (std::map<int, FileTransfer*>::iterator it = activeTransfers.begin(); it != activeTransfers.end(); ++it) {
+		delete it->second;
+	}
+	activeTransfers.clear();
+
+    // Cerrar el socket del servidor
+    close(socket_fd);
+   	std::cout << "Server shutdown completed." << std::endl;
     // Cerrar el socket del servidor
     close(socket_fd);
    	std::cout << "Server shutdown completed." << std::endl;
@@ -327,3 +341,204 @@ std::vector<Client*> Server::getChannelUsers(const std::string& channelName) {
     return std::vector<Client*>();  // Si el canal no existe, devuelve un vector vacío
 }
 
+
+void Server::handleFileSendRequest(Client& client, const std::vector<std::string>& tokens) {
+    if (tokens.size() < 3) {
+        sendResponse(client.getSocketFD(), "Error: Incorrect file send request format.");
+        return;
+    }
+
+    std::string recipientNick = tokens[1];  // Nombre del destinatario
+    std::string fileName = tokens[2];  // Nombre del archivo
+	
+	if (fileName.size() > 255) {
+		fileName = fileName.substr(0, 255);
+	}
+
+
+    Client* recipient = getClientByNick(recipientNick);
+    if (!recipient) {
+        sendResponse(client.getSocketFD(), ERR_NOSUCHNICK(getServerName(), recipientNick));
+        return;
+    }
+
+    std::ifstream file(fileName.c_str(), std::ios::binary | std::ios::ate);
+    if (!file) {
+        sendResponse(client.getSocketFD(), "Error: File not found or not accessible.");
+        return;
+    }
+
+    std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+	//Vamos a crear el nombre corto sin el path:
+	std::string shortFileName;
+	size_t lastSlashPos = fileName.find_last_of("/");
+	if (lastSlashPos != std::string::npos) {
+		shortFileName = fileName.substr(lastSlashPos + 1);  // Nombre del archivo sin path
+		}
+	else {
+        shortFileName = fileName;  // Si no hay '/', usa el nombre completo
+    }
+
+    // Notificamos al destinatario sobre el archivo que se le quiere enviar
+	std::ostringstream oss;
+	oss << fileSize;
+	std::string fileSizeStr = oss.str();
+
+	// Enviar notificación solo con el nombre corto
+	std::string notification = "PRIVMSG " + recipient->getNickname() + " :" +
+		client.getNickname() + 
+		" wants to send you the file: " + shortFileName + "\n" +
+		"Size: " + fileSizeStr + " bytes\nAccept by typing: /ACCEPT_F " + shortFileName +
+		"\nReject by typing: /REJECT_F " + shortFileName;	
+	sendResponse(recipient->getSocketFD(), notification);
+
+	// Enviar notificación al cliente que está enviando el archivo
+	std::string senderNotification = "PRIVMSG " + client.getNickname() + 
+		" :Attempting to send the file " +
+        shortFileName + " to " + recipient->getNickname() + "...";
+    sendResponse(client.getSocketFD(), senderNotification);
+
+    // Almacenar la transferencia con el path completo
+    addFileTransfer(&client, recipient, fileName, fileSize);
+}
+
+
+
+
+// Aqui manejamos la aceptacion del archivo por parte del cliente receiver
+void Server::handleAcceptFile(Client& client, const std::vector<std::string>& tokens) {
+    if (tokens.size() < 2) {
+        sendResponse(client.getSocketFD(), "Error: Missing file name in the acceptance request.");
+        return;
+    }
+
+    std::string fileName = tokens[1];  // Nombre del archivo
+    int clientFD = client.getSocketFD();
+
+    // Verificamos si hay una solicitud de archivo activa
+    if (getActiveTransfers().find(clientFD) == getActiveTransfers().end()) {
+        sendResponse(client.getSocketFD(), "Error: No pending file transfer requests.");
+        return;
+    }
+
+    FileTransfer* transfer = getActiveTransfers()[clientFD];
+
+    // Mensaje de confirmación de la transferencia
+    std::ostringstream oss;
+    oss << transfer->getFileSize();
+
+	// Pillamos el Home del user:
+    const char* homeDir = getenv("HOME");
+    if (!homeDir) {
+        sendResponse(client.getSocketFD(), "Error: Could not determine user's home directory.");
+        return;
+    }
+
+	// Creamos el path para la carpeta "DescargasChat" en el Desktop
+    std::string downloadPath = std::string(homeDir) + "/Desktop/DescargasChat";
+
+    // Creamos el directorio si no exite
+    struct stat st;
+	if (stat(downloadPath.c_str(), &st) != 0) {
+		// Intentamos crear la carpeta si no existe
+		if (mkdir(downloadPath.c_str(), 0777) != 0) {
+        // Enviar mensaje de error al cliente si no se puede crear la carpeta
+			sendResponse(client.getSocketFD(), "Error: Failed to create directory 'DescargasChat' on the Desktop.");
+        return;
+	    }
+	}
+    // Anadimios el path al nombre del fichero
+    downloadPath += "/" + fileName;
+
+	// Notificación para el cliente que envía el archivo
+	std::string senderNotification = "PRIVMSG " + transfer->getSender()->getNickname() +
+		" :Your file " + fileName + " has been accepted. The transfer will begin shortly.";
+	sendResponse(transfer->getSender()->getSocketFD(), senderNotification);
+
+	// Notificación para el cliente que recibe el archivo
+	std::string receiverNotification = "PRIVMSG " + transfer->getRecipient()->getNickname() +
+		" :You have accepted the file " + fileName + ". The transfer will begin shortly.";
+	sendResponse(transfer->getRecipient()->getSocketFD(), receiverNotification);
+
+
+    // Iniciamos la transferencia
+	sendFileData(*(transfer->getSender()), *(transfer->getRecipient()), fileName, downloadPath, *this);
+
+}
+
+// Ahora el rechazo de la transferencia por parte del cliente receier
+void Server::handleRejectFile(Client& client, const std::vector<std::string>& tokens) {
+    if (tokens.size() < 2) {
+        sendResponse(client.getSocketFD(), "Error: Missing file name in the rejection request.");
+        return;
+    }
+
+    std::string fileName = tokens[1];  // Nombre del archivo
+    int clientFD = client.getSocketFD();
+
+    // Verificamos si hay una solicitud de archivo activa
+    if (getActiveTransfers().find(clientFD) != getActiveTransfers().end()) {
+        FileTransfer& transfer = *getActiveTransfers()[clientFD];
+        
+        // Notificamos al remitente que la solicitud fue rechazada
+        sendResponse(transfer.getSender()->getSocketFD(),"The file transfer for " + fileName + " was rejected.");
+		// Confirmamos al receiver que ha rechazado la transferencia
+        sendResponse(client.getSocketFD(), "You have rejected the file " + fileName + " transfer.");
+        
+        // Eliminamos la transferencia activa
+        getActiveTransfers().erase(clientFD);
+    }
+}
+
+void Server::addFileTransfer(Client* sender, Client* recipient, const std::string& fileName, std::streamsize fileSize) {
+    int recipientFD = recipient->getSocketFD();
+	// Crear un nuevo puntero a FileTransfer
+    FileTransfer* transfer = new FileTransfer(sender, recipient, fileName, fileSize); 
+    activeTransfers[recipientFD] = transfer;
+}
+
+std::map<int, FileTransfer*>& Server::getActiveTransfers() {
+	return (activeTransfers);
+}
+
+FileTransfer* Server::getFileTransfer(int clientFD) {
+	if (activeTransfers.find(clientFD) != activeTransfers.end()) {
+		return (activeTransfers[clientFD]);
+	}
+	return (NULL);
+}
+
+void Server::removeFileTransfer(int recipientFD) {
+    if (activeTransfers.find(recipientFD) != activeTransfers.end()) {
+        delete activeTransfers[recipientFD]; // Liberar memoria
+        activeTransfers.erase(recipientFD);
+    }
+}
+
+// Para encontrar por un nick un cliente, lo necesitamos para enviar los archivos
+// Copiamos la funcion de arriba del mapa de clientes.
+Client* Server::getClientByNick(const std::string& nickname) const {
+    // Recorremos el mapa de clientes
+    std::map<int, Client*>::const_iterator it;
+    for (it = clients.begin(); it != clients.end(); ++it) {
+        // Verificamos si el nickname del cliente coincide
+        if (it->second->getNickname() == nickname) {
+            return it->second; // Devolvemos el cliente si el nickname coincide
+        }
+    }
+    return NULL; // Si no se encuentra el cliente, devolvemos NULL
+}
+
+void Server::sendBinaryData(int client_fd, const std::vector<char>& data) {
+    // Usamos std::ostringstream para construir el mensaje de error
+    std::ostringstream oss;
+    oss << "Error: Failed to send binary data to client (fd " << client_fd << ").";
+    std::string errorMsg = oss.str();  // Convertir a string
+
+    // Enviar los datos binarios al cliente
+    if (send(client_fd, data.data(), data.size(), 0) == -1) {
+        sendResponse(client_fd, errorMsg);  // Usa función de envío de mensajes para notificar al cliente
+    }
+}
