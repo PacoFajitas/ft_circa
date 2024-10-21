@@ -15,6 +15,7 @@
 #include "modeCommand.hpp"
 #include "partCommand.hpp"
 #include "cscCommand.hpp"
+#include "privmsgCommand.hpp"
 
 bool	requireRegistration(Client& client, Server& server) {
 	if (!client.isFullyRegistered()) {
@@ -87,6 +88,12 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 			std::cout << "Processing PART command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handlePartCommand(client, tokens, server);
+			}
+		else if(commandName == "PRIVMSG"){
+			std::cout << "-----------------------------" << std::endl;
+			std::cout << "Processing PRIVMSG command: " << command << std::endl;
+			std::cout << "-----------------------------" << std::endl;
+			handlePrivmsgCommand(client, tokens, server);
 			}
 		}
 	return (true);

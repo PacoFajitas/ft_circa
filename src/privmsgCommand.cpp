@@ -5,6 +5,7 @@
 #include "server.hpp"
 #include "responses.hpp"
 #include "client.hpp"
+#include "channel.hpp"
 
 void handlePrivmsgCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
     if (tokens.size() < 3) {
@@ -16,13 +17,17 @@ void handlePrivmsgCommand(Client& client, const std::vector<std::string>& tokens
     std::string message = joinTokens(tokens, 2);
 
     Client* recipientClient = server.getClientByNick(recipientNick);
-    if (!recipientClient) {
+    Channel* recipientChannel = server.getChannel(recipientNick);
+    if (!recipientClient && !recipientChannel) {
         server.sendResponse(client.getSocketFD(), ERR_NOSUCHNICK(server.getServerName(), recipientNick));
         return;
     }
-
+    std::cout << "holiiiii" << std::endl;
     std::string formattedMessage = ":" + client.getNickname() + " PRIVMSG " + recipientNick + " :" + message;
-    server.sendResponse(recipientClient->getSocketFD(), formattedMessage);
+    if (recipientClient)
+        server.sendResponse(recipientClient->getSocketFD(), formattedMessage);
+    else
+        recipientChannel->sendMessage(formattedMessage, client.getSocketFD()); 
 }
 
 
