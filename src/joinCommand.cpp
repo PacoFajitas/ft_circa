@@ -33,21 +33,19 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
         server.addChannel(channel);
     }
     else if (channel->getMode('i') == true && !channel->isUserRole(client, "INVITED"))
+    {
         server.sendResponse(client.getSocketFD(),ERR_INVITEONLYCHAN(channel->getName()));
+        return ;
+    }
     else
         channel->manageUser(&client, PARTICIPANT, true);
 
-    // 1. Enviar confirmación de JOIN al cliente que se une
-    std::string joinMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname() + " JOIN :" + channelName + "\r\n";
+    server.sendResponse(client.getSocketFD(), 
+        RPL_JOIN(client.getNickname(), client.getUsername(), client.getHostname(), channel->getName()));
+
+    channel->sendMessage(RPL_JOIN(client.getNickname(), client.getUsername(), client.getHostname(), 
+        channel->getName()), client.getSocketFD());
     
-    // Enviar el mensaje de unión al cliente que se acaba de unir (aseguramos que el primero lo vea)
-    server.sendResponse(client.getSocketFD(), joinMsg);
-
-    // 2. Enviar el mismo mensaje al resto de usuarios en el canal
-    std::set<int> exclude_fds;
-    exclude_fds.insert(client.getSocketFD());  // Excluir al cliente que se acaba de unir de recibir el mensaje de su propio JOIN desde otros
-    server.broadcastMessage(joinMsg, channel->getClientFDs(), exclude_fds);  // Notificar al resto de usuarios del canal
-
     if (!channel->getTopic().empty())
         server.sendResponse(client.getSocketFD(), RPL_TOPIC(server.getServerName(), channel->getName(), channel->getTopic()));
 

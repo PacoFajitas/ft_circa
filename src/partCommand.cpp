@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   partCommand.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 18:27:07 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/21 16:57:57 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/21 19:22:50 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 void handlePartCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
 {
 	if (tokens.size() < 2)
+	{
 		server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "PART"));
+		return ;
+	}
 	std::string err;
 	Channel *channel = server.getChannel(tokens[1]);
 	if (!channel)
@@ -29,12 +32,16 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 		server.sendResponse(client.getSocketFD(), err);
 		return;
 	}
-	channel->manageUser(channel->getUser(client.getNickname()), PARTICIPANT, false);
-	
+	std::cout << "Printing Client Vector before deleting user" << std::endl;
 	printClientVector(channel->getUsersWithRole("INCHANNEL"));
-	
-	std::string partNotification = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname() + " PART " + channel->getName();
-
+	channel->manageUser(channel->getUser(client.getNickname()), PARTICIPANT, false);
+	std::cout << "Printing Client Vector after deleting user" << std::endl;
+	printClientVector(channel->getUsersWithRole("INCHANNEL"));
+	if (channel->getUsers().empty())
+	{
+		server.deleteChannel(channel->getName());
+		return ;
+	}
 	std::string resp = ":" + client.getNickname() + " PART " + channel->getName();
 	if (tokens.size() > 2)
 	{
@@ -44,9 +51,4 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 			resp += tokens[i];
 		}
 	}
-	server.sendResponse(client.getSocketFD(), partNotification);
-	if (channel->getUsers().empty())
-		server.deleteChannel(channel->getName());
-	else
-		channel->sendMessage(partNotification, client.getSocketFD());
 }

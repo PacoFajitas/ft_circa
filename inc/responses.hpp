@@ -28,6 +28,8 @@
 #define ERR_CHANNELISFULL(nickname, channel) (std::string(":server_name 471 " + nickname + " " + channel + " :Cannot join channel (+l)"))
 #define ERR_INVITEONLYCHAN(channel) (std::string("473 " + channel + " :Cannot join channel (+i)"))
 #define ERR_BADCHANNELKEY(nickname, channel) (std::string("475 " + nickname + " " + channel + " :Cannot join channel (+k)"))
+#define RPL_JOIN(nickname, username, hostname, channel) \
+    (std::string(":" + nickname + "!" + username + "@" + hostname + " JOIN :" + channel))
 #define RPL_NOTOPIC(servername, channel) (std::string(":" + servername + " 331 " + channel + " :No topic is set"))
 #define RPL_TOPIC(servername, channel, topic) (std::string(":" + servername + " 332 " + channel + " :" + topic))
 #define RPL_NAMREPLY(servername, nickname, channel, clientlist) \
@@ -56,6 +58,7 @@
 #define ERR_UNKNOWNMODE(servername, user, flag) (std::string(":" + servername + " " + user + " 472 " + flag + " :is unknown mode char to me for "))
 // #define ERR_UMODEUNKNOWNFLAG(client)(std::string ("501: ") + client + " :Unknown MODE flag")
 
+// :quien_invita!usuario@host INVITE tu_nick :#canal
 // INVITE
 #define ERR_USERONCHANNEL(servername, nickname, channel) \
     (std::string(":" + servername + " 443 " + nickname + " " + channel + " :is already on channel"))
@@ -63,6 +66,10 @@
     (std::string(":" + servername + " 482 " + channel + " :You're not channel operator"))
 #define RPL_INVITING(servername, nickname, channel, nicknameinvited) \
     (std::string(":" + servername + " 341 " + nickname + " " + channel + " " + nicknameinvited))
+#define RPL_YOUVEBEENINVITED(client, username, hostname, invited, channel) \
+    (std::string (":" + client + "!" + username + "@" + hostname + " INVITE " + invited + " :" + channel))
+// #define RPL_YOUVEBEENINVITED(servername, client, channel) \
+//     (std::string(":" + servername + " " + client + " has invited you to " + channel))
 
 // PING
 #define RPL_PONG(servername, text) (std::string(":" + servername + " PONG " + text))
@@ -76,6 +83,12 @@
 // GENERAL
 #define ERR_UNKNOWNCOMMAND(command) (std::string("421 " + command + " :Unknown command"))
 #define ERR_NOTREGISTERED() (std::string("451 :You have not registered"))  // Error si mandamos algo sin estar registrados
+
+// WHO
+#define RPL_WHOREPLY(server, client, channel, username, hostname, nick, op, realname) \
+    (std::string (":" + server + " 352 " + client + " " + channel + " " + username + " " + hostname + " " + server + " " + nick + " H" + op + " :0" + realname))
+#define RPL_ENDOFWHO(server, client, channel) \
+    (std::string (":" + server + " 315 " + client + " " + channel + " :End of /WHO list."))
 
 #endif // RESPONSES_HPP
 

@@ -18,21 +18,13 @@ void handleWhoCommand(Client& client, const std::string& channelName, Server& se
     }
     const std::vector<Client*>& users = channel->getUsersWithRole("INCHANNEL");
     for (size_t i = 0; i < users.size(); ++i) {
-        // Enviar respuesta WHO (352) para cada usuario en el canal
-        std::string whoReplyMsg = ":" + server.getServerName() + " 352 " + client.getNickname() +
-                                  " " + channelName + " " + users[i]->getUsername() + " " + 
-                                  users[i]->getHostname() + " " + server.getServerName() + " " +
-                                  users[i]->getNickname();
-        whoReplyMsg += " H";
         if (channel->isUserRole(*users[i], "OPERATOR"))
-            whoReplyMsg += "@";
-         whoReplyMsg += " :0 " + users[i]->getRealname();
-        server.sendResponse(client.getSocketFD(), whoReplyMsg);
+            server.sendResponse(client.getSocketFD(), RPL_WHOREPLY(server.getServerName(), client.getNickname(), 
+                channel->getName(), users[i]->getUsername(), users[i]->getHostname(), users[i]->getNickname(), "@", users[i]->getRealname()));
+        else
+            server.sendResponse(client.getSocketFD(), RPL_WHOREPLY(server.getServerName(), client.getNickname(), 
+                channel->getName(), users[i]->getUsername(), users[i]->getHostname(), users[i]->getNickname(), "", users[i]->getRealname()));
     }
-
-    // Fin del WHO (315)
-    std::string endOfWhoMsg = ":" + server.getServerName() + " 315 " + client.getNickname() +
-                              " " + channelName + " :End of /WHO list";
-    server.sendResponse(client.getSocketFD(), endOfWhoMsg);
+    server.sendResponse(client.getSocketFD(), RPL_ENDOFWHO(server.getServerName(), client.getNickname(), channel->getName()));
 }
 
