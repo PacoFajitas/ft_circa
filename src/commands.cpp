@@ -63,13 +63,13 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 			std::cout << "Processing JOIN command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handleJoinCommand(client, tokens, server);
-			}
+		}
 		else if (commandName == "PING") {
 			handlePingCommand(client, tokens, server);
-			}
+		}
 		else if (commandName == "PONG" && client.isRegistered()) {
 			handlePongCommand(tokens);
-			}
+		}
 		else if (commandName == "WHO") {
 			if (tokens.size() > 1) {
 				std::cout << "-----------------------------" << std::endl;
@@ -83,25 +83,25 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 			std::cout << "Processing MODE command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handleModeCommand(client, tokens, server);
-			}
+		}
 		else if(commandName == "PART"){
 			std::cout << "-----------------------------" << std::endl;
 			std::cout << "Processing PART command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handlePartCommand(client, tokens, server);
-			}
+		}
 		else if(commandName == "PRIVMSG"){
 			std::cout << "-----------------------------" << std::endl;
 			std::cout << "Processing PRIVMSG command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handlePrivmsgCommand(client, tokens, server);
-			}
+		}
 		else if(commandName == "INVITE"){
 			std::cout << "-----------------------------" << std::endl;
 			std::cout << "Processing INVITE command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handleInviteCommand(client, tokens, server);
-			}
+		}
 		}
 	return (true);
 }
