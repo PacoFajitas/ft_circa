@@ -316,7 +316,7 @@ void Channel::setModeSentToClient(const Client& client) {
     clientsWithModeSent.insert(client.getSocketFD());
 }
 
-
+// -1 para mandar a todos
 void    Channel::sendMessage(const std::string& message, const int _fd) {
     for (std::map<Client *, UserRole>::const_iterator it = users.begin(); it != users.end(); ++it) {
         int fd = it->first->getSocketFD();
@@ -326,3 +326,19 @@ void    Channel::sendMessage(const std::string& message, const int _fd) {
         }
     }
 }
+
+std::string Channel::clientOpList()
+{
+    std::string clientList;
+    const std::vector<Client*>& participants = getUsersWithRole("INCHANNEL");
+    for (size_t i = 0; i < participants.size(); ++i) {
+        if (isUserRole(*participants[i], "OPERATOR"))
+            clientList += "@";
+        clientList += participants[i]->getNickname();
+        if (i < participants.size() - 1) {
+            clientList += " ";
+        }
+    }
+    return clientList;
+}
+

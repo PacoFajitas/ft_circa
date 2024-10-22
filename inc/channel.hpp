@@ -48,6 +48,7 @@ class Channel {
 		bool	hasSentModeToClient(const Client& client);
 		void	setModeSentToClient(const Client& client);
 		void	sendMessage(const std::string& message, const int _fd);
+		std::string clientOpList();
 
 
 	private:

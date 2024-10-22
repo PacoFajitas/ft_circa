@@ -79,7 +79,7 @@
 
 // KICK
 #define ERR_USERNOTINCHANNELKICK(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))
-
+#define RPL_KICKPART(client, username, hostname, channel, kickpart, nick, reason)(std::string (":" + client + "!" + username + "@" + hostname + kickpart + channel + " " + nick + reason))
 // GENERAL
 #define ERR_UNKNOWNCOMMAND(command) (std::string("421 " + command + " :Unknown command"))
 #define ERR_NOTREGISTERED() (std::string("451 :You have not registered"))  // Error si mandamos algo sin estar registrados

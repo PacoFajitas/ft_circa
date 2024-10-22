@@ -71,6 +71,7 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     // MODE #channel +iiiolk argO argL argK argL etc. -->numPar=4+3 tokensize >= 7
     // std::cout << "MODE LENGTH    " << mode.length() << std::endl;
     numPar = 0;
+    std::string clientList;
     for (size_t i = 1; i < mode.length(); i++)
     {
         if (active == true)
@@ -86,7 +87,10 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             if (mode.at(i) == 'o')
             {
                 if(channel->isUserInChannel(args[numPar]))
+                {
                     channel->setMode(mode.at(i), active, tokens[i + 2]);
+                    clientList = channel->clientOpList();
+                }
                 else
                     server.sendResponse(client.getSocketFD(), ERR_USERNOTINCHANNEL(server.getServerName(), args[numPar], channel->getName()));
                 numPar++;
@@ -99,12 +103,11 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             }
         }
     }
-    // Solo enviar el modo si no se ha enviado aún o si el cliente lo solicita explícitamente
-    if (!channel->hasSentModeToClient(client)) 
+    server.sendResponse(client.getSocketFD(), RPL_CHANNELMODEIS(server.getServerName(), client.getNickname(), channel->getName(), channel->getAllModes()));
+    if (!clientList.empty())
     {
-        // std::string modeMessage = ":" + server.getServerName() + " 324 " + client.getNickname() + " " + channelName + " +nt\r\n";
-        server.sendResponse(client.getSocketFD(), RPL_CHANNELMODEIS(server.getServerName(), client.getNickname(), channel->getName(), channel->getAllModes()));
-        channel->setModeSentToClient(client);  // Marca que ya se ha enviado el modo
+        channel->sendMessage(RPL_NAMREPLY(server.getServerName(), client.getNickname(), channel->getName(), clientList), -1);
+        channel->sendMessage(RPL_ENDOFNAMES(client.getNickname(),channel->getName()), -1);
     }
 }
 
