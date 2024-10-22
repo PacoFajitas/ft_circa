@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 18:27:07 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/22 18:58:46 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:30:21 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,22 +26,20 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 		err = ERR_NOSUCHCHANNEL(tokens[1]);
 	else if (!channel->isUserRole(client, "INCHANNEL"))
 		err = ERR_NOTONCHANNEL(server.getServerName(), channel->getName());
-	
 	if (!err.empty())
 	{
 		server.sendResponse(client.getSocketFD(), err);
 		return;
 	}
-	// std::cout << "Printing Client Vector before deleting user" << std::endl;
-	// printClientVector(channel->getUsersWithRole("INCHANNEL"));
-	// std::cout << "Printing Client Vector after deleting user" << std::endl;
-	// printClientVector(channel->getUsersWithRole("INCHANNEL"));
-	std::string resp = " ";
+	
+	std::string resp = "";
 	if (tokens.size() > 2)
 	{
 		resp = " :";
 		for (uint i = 2; i < tokens.size() ; i++)
 		{
+			if (i != 2)
+				resp += " ";
 			resp += tokens[i];
 		}
 	}
@@ -54,7 +52,7 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 		return ;
 	}
 	channel->sendMessage(RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
-		channel->getName(), " PART ", client.getNickname(), resp), -1);
+		channel->getName(), " PART ", client.getNickname(), resp), client.getSocketFD());
 	std::string clientList = channel->clientOpList();
 	if (!clientList.empty())
     {

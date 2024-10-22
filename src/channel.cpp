@@ -234,8 +234,8 @@ void    Channel::setMode(char mode, bool active)
 
 void    Channel::setMode(char mode, bool active, std::string msg)
 {
-    if (active == false && getMode(mode) == false)
-        return ;
+    // if (active == false && getMode(mode) == false)
+    //     return ;
     if (active == true)
     {
         if (mode == 'k')

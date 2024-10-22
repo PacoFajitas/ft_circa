@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 17:38:48 by tfiguero          #+#    #+#             */
-/*   Updated: 2024/10/22 18:56:20 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:28:46 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,27 +34,28 @@ void handleKickCommand(Client& client, const std::vector<std::string>& tokens, S
 		server.sendResponse(client.getSocketFD(),err);
 		return ;
 	}
-	//no puede ser token[2] pq necesita ser de tipo cliente. hacer un geter para esto que devuelva el obj cliente segun el nick que entre por parametro
-	Client *kicked = channel->getUser(tokens[2]);
-	std::string resp = " ";
+	
+	std::string resp = "";
 	if (tokens.size() > 2)
 	{
 		resp = " :";
 		for (uint i = 2; i < tokens.size() ; i++)
 		{
+			if (i != 2)
+				resp += " ";
 			resp += tokens[i];
 		}
 	}
-	server.sendResponse(kicked->getSocketFD(), RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
-		channel->getName(), " KICK ", kicked->getNickname(), resp));
-	channel->sendMessage(RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
-		channel->getName(), " KICK ", kicked->getNickname(), resp), -1);
+	server.sendResponse(channel->getUser(tokens[2])->getSocketFD(), RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
+		channel->getName(), " KICK ", tokens[2], resp));
 	channel->manageUser(channel->getUser(tokens[2]), PARTICIPANT, false);
-	if(channel->getUsers().empty())
+	if (channel->getUsers().empty())
 	{
 		server.deleteChannel(channel->getName());
 		return ;
 	}
+	channel->sendMessage(RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
+		channel->getName(), " KICK ", tokens[2], resp), -1);
 	std::string clientList = channel->clientOpList();
 	if (!clientList.empty())
     {

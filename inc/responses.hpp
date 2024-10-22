@@ -56,6 +56,7 @@
     (std::string(":" + servername + " 324 " + nickname + " " + channel + " " + flag))
 #define ERR_KEYSET(servername, channel) (std::string(":" + servername + " 467 " + channel + " :Channel key already set"))
 #define ERR_UNKNOWNMODE(servername, user, flag) (std::string(":" + servername + " " + user + " 472 " + flag + " :is unknown mode char to me for "))
+#define RPL_OPERATOR(client, username, hostname, channel, active, nick) (std::string (":" + client + "!" + username + "@" + hostname + " MODE " + active + "o " + channel + " " + nick))
 // #define ERR_UMODEUNKNOWNFLAG(client)(std::string ("501: ") + client + " :Unknown MODE flag")
 
 // :quien_invita!usuario@host INVITE tu_nick :#canal

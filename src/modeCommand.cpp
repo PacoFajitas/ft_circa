@@ -22,7 +22,6 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     {
         std::string flags;
         flags = channel->getAllModes();
-        // std::cout << "HOLIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII" << channel->getAllModes() << std::endl;
         server.sendResponse(client.getSocketFD(), \
             RPL_CHANNELMODEIS(server.getServerName(), client.getNickname(), channel->getName(), flags));
         return;
@@ -34,7 +33,13 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
         active = false;
     else if (mode.at(0) == '+')
         active = true;
-    if(countModeArgs(tokens) < countModeFlags(mode) && active)
+    else
+    {
+        server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), " no flag "));
+        return ;
+    }
+    // mode -lllllllllllllllllllllllllllllllllllllllllllllllo meri
+    if(countModeArgs(tokens) < countModeFlags(mode, active))
     {
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE1"));
         return ;
@@ -44,7 +49,7 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     ulong numPar = 0; //Para contar cuantos modos necesitan parametros
     for (ulong i = 1; i < mode.length(); i++)
     {
-        server.sendResponse(client.getSocketFD(), "Holi");
+        // server.sendResponse(client.getSocketFD(), "Holi");
         // std::cout << (tokens[3 + numPar]) << std::endl;
         if (mode[i] == 'k' || mode[i] == 'o') //modificar isalnum por la funcion de valildchars
         {
@@ -74,10 +79,10 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     std::string clientList;
     for (size_t i = 1; i < mode.length(); i++)
     {
-        if (active == true)
-            server.sendResponse(client.getSocketFD(), "Verdad");
-        else
-            server.sendResponse(client.getSocketFD(), "Feka como Arzel");
+        // if (active == true)
+        //     server.sendResponse(client.getSocketFD(), "Verdad");
+        // else
+        //     server.sendResponse(client.getSocketFD(), "Feka como Arzel");
         if (mode.at(i) == 't' || mode.at(i) == 'i')
         {
             channel->setMode(mode.at(i), active);
@@ -88,7 +93,13 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             {
                 if(channel->isUserInChannel(args[numPar]))
                 {
-                    channel->setMode(mode.at(i), active, tokens[i + 2]);
+                    channel->setMode(mode.at(i), active, args[numPar]);
+                    if (active)
+                        channel->sendMessage(RPL_OPERATOR(client.getNickname(), client.getUsername(), client.getHostname(),
+                            channel->getName(), "+", args[numPar]), -1);
+                    else
+                        channel->sendMessage(RPL_OPERATOR(client.getNickname(), client.getUsername(), client.getHostname(),
+                            channel->getName(), "-", args[numPar]), -1);
                     clientList = channel->clientOpList();
                 }
                 else
@@ -111,12 +122,14 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     }
 }
 
-int countModeFlags(std::string arg)
+int countModeFlags(std::string arg, bool active)
 {
     int ret = 0;
     for (size_t i = 0; i < arg.length(); i++)
     {
-        if (arg.at(i) != '+' && arg.at(i) != '-' && arg.at(i) != 'i' && arg.at(i) != 't')
+        if (active && arg.at(i) != '+' && arg.at(i) != '-' && arg.at(i) != 'i' && arg.at(i) != 't')
+            ret++;
+        else if(!active && arg.at(i) == 'o')
             ret++;
         
     }
