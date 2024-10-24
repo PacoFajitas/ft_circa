@@ -79,6 +79,15 @@ void	Server::setupSignalHandler() {
 }
 **********/
 
+void    Server::initializeBot()
+{
+    _bot = new Client(-1);
+    _bot->setRealname("BeepBoop");
+    _bot->setNickname("CommunistBeepBoop");
+    _bot->setHostname("8.8.8.8");
+    _bot->setUsername("CommunistBeepBoop");
+}
+
 void	Server::configureServer(int port, std::string password) {
 	this->password = password;  // Asignar la contraseña
 	this->port = port;          // Asignar el puerto
@@ -88,10 +97,10 @@ void	Server::configureServer(int port, std::string password) {
 	setNonBlockingMode(socket_fd);// Que no nos bloquee
 	bindSocket(socket_fd, port);//Vinculamos el socket a la IP y puerto
 	listenOnSocket(socket_fd);// Lo ponemos en escucha
-
+    initializeBot();
 	// Añadir el socket a la lista de descriptores supervisados por poll (abajo: sensible a POLLIN)
 	addPollFd(poll_fds, socket_fd, POLLIN); //Añadir el socket_fd, a los poll_fds
-
+    
 	setupSignalHandler();      // Configurar el manejador de señales
 }
 
@@ -297,7 +306,7 @@ const std::map<int, Client*>& Server::getClients() const {
 
 void Server::cleanup() {
     std::cout << "Signal detected, cleaning up..." << std::endl;
-
+    delete _bot;
     // Cerrar todos los descriptores de archivo supervisados
     for (size_t i = 0; i < poll_fds.size(); ++i) {
         close(poll_fds[i].fd);
@@ -332,6 +341,11 @@ void Server::cleanup() {
 
 std::string Server::getPassword() const {
 	return (password); // Devuelve la contraseña almacenada en la clase Server
+}
+
+Client *Server::getBot()
+{
+	return _bot;
 }
 
 Channel* Server::getChannel(const std::string& channel_name) {

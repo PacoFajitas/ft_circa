@@ -18,7 +18,7 @@ class Channel {
 
 	public :
 		// Constructor
-		Channel(const std::string& channel_name, Server& srv, Client& client);
+		Channel(const std::string& channel_name, Server& srv, Client& client, Client *bot);
 
 		// GETERS AND SETERS
 
@@ -37,6 +37,7 @@ class Channel {
 		void    setMode(char mode, bool active);
 		void    setMode(char mode, bool active, std::string msg);
 		Client	*getUser(std::string nick);
+		Client	*getBot();
 
 
 
@@ -60,7 +61,7 @@ class Channel {
 		std::string password;
 		Server& server;
 		std::set<int> clientsWithModeSent;
-
+		Client *_bot;
 
 };
 

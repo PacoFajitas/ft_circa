@@ -22,7 +22,6 @@ void handlePrivmsgCommand(Client& client, const std::vector<std::string>& tokens
         server.sendResponse(client.getSocketFD(), ERR_NOSUCHNICK(server.getServerName(), recipientNick));
         return;
     }
-    std::cout << "holiiiii" << std::endl;
     std::string formattedMessage = ":" + client.getNickname() + " PRIVMSG " + recipientNick + " :" + message;
     if (recipientClient)
         server.sendResponse(recipientClient->getSocketFD(), formattedMessage);

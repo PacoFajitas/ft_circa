@@ -18,6 +18,7 @@
 #include "privmsgCommand.hpp"
 #include "inviteCommand.hpp"
 #include "kickCommand.hpp"
+#include "topicCommand.hpp"
 
 bool	requireRegistration(Client& client, Server& server) {
 	if (!client.isFullyRegistered()) {
@@ -108,6 +109,12 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 			std::cout << "Processing KICK command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handleKickCommand(client, tokens, server);
+		}
+		else if(commandName == "TOPIC"){
+			std::cout << "-----------------------------" << std::endl;
+			std::cout << "Processing TOPIC command: " << command << std::endl;
+			std::cout << "-----------------------------" << std::endl;
+			handleTopicCommand(client, tokens, server);
 		}
 	}
 	return (true);

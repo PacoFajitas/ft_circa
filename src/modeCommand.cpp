@@ -13,20 +13,19 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     }
     std::string channelName = tokens[1];
     Channel* channel = server.getChannel(channelName);
-    
-    if (!channel) {
-        server.sendResponse(client.getSocketFD(), ERR_NOSUCHCHANNEL(channelName));
-        return;
-    }
-    if (tokens.size() == 2 && channel)
+    std::string err;
+    if (!channel)
+        err = ERR_NOSUCHCHANNEL(channelName);
+    else if (tokens.size() == 2 && channel)
+        err = RPL_CHANNELMODEIS(server.getServerName(), client.getNickname(), 
+            channel->getName(), channel->getAllModes());
+    else if (!channel->isUserRole(client, "OPERATOR"))
+        err = ERR_CHANOPRIVSNEEDED(server.getServerName(), channel->getName());
+    if (!err.empty())
     {
-        std::string flags;
-        flags = channel->getAllModes();
-        server.sendResponse(client.getSocketFD(), \
-            RPL_CHANNELMODEIS(server.getServerName(), client.getNickname(), channel->getName(), flags));
-        return;
+        server.sendResponse(client.getSocketFD(), err);
+        return ;
     }
-
     std::string mode = tokens[2];
     bool active;
     if (mode.at(0) == '-')
@@ -38,7 +37,6 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
         server.sendResponse(client.getSocketFD(), ERR_UNKNOWNMODE(server.getServerName(), client.getNickname(), " no flag "));
         return ;
     }
-    // mode -lllllllllllllllllllllllllllllllllllllllllllllllo meri
     if(countModeArgs(tokens) < countModeFlags(mode, active))
     {
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE1"));
@@ -49,8 +47,6 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     ulong numPar = 0; //Para contar cuantos modos necesitan parametros
     for (ulong i = 1; i < mode.length(); i++)
     {
-        // server.sendResponse(client.getSocketFD(), "Holi");
-        // std::cout << (tokens[3 + numPar]) << std::endl;
         if (mode[i] == 'k' || mode[i] == 'o') //modificar isalnum por la funcion de valildchars
         {
             numPar++;
@@ -72,17 +68,10 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
             return ;
         }
     }
-    // MODE #channel +iiiolkl
-    // MODE #channel +iiiolk argO argL argK argL etc. -->numPar=4+3 tokensize >= 7
-    // std::cout << "MODE LENGTH    " << mode.length() << std::endl;
     numPar = 0;
     std::string clientList;
     for (size_t i = 1; i < mode.length(); i++)
     {
-        // if (active == true)
-        //     server.sendResponse(client.getSocketFD(), "Verdad");
-        // else
-        //     server.sendResponse(client.getSocketFD(), "Feka como Arzel");
         if (mode.at(i) == 't' || mode.at(i) == 'i')
         {
             channel->setMode(mode.at(i), active);

@@ -30,8 +30,6 @@
 #define ERR_BADCHANNELKEY(nickname, channel) (std::string("475 " + nickname + " " + channel + " :Cannot join channel (+k)"))
 #define RPL_JOIN(nickname, username, hostname, channel) \
     (std::string(":" + nickname + "!" + username + "@" + hostname + " JOIN :" + channel))
-#define RPL_NOTOPIC(servername, channel) (std::string(":" + servername + " 331 " + channel + " :No topic is set"))
-#define RPL_TOPIC(servername, channel, topic) (std::string(":" + servername + " 332 " + channel + " :" + topic))
 #define RPL_NAMREPLY(servername, nickname, channel, clientlist) \
     (std::string(":" + servername + " 353 " + nickname + " = " + channel + " :" + clientlist))
 #define RPL_ENDOFNAMES(nickname, channel) (std::string(":" + server.getServerName() + " 366 " + nickname + " " + channel + " :End of /NAMES list"))
@@ -41,7 +39,7 @@
 #define ERR_NOTEXTTOSEND(servername) (std::string(":" + servername + " 412 :No text to send"))
 #define ERR_CANNOTSENDTOCHAN(servername, channel) (std::string(":" + servername + " 404 " + channel + " :Cannot send to channel"))
 #define ERR_NOSUCHNICK(servername, nickname) (std::string(":" + servername + " 401 " + nickname + " :No such nick/channel"))
-
+#define RPL_PRIVMSG(sender, receiver, message) (std::string(":" + sender + " PRIVMSG " + receiver + " " + message))
 
 // PASSWORD
 #define ERR_PASSWDMISMATCH() (std::string("464 :Password incorrect"))
@@ -69,8 +67,6 @@
     (std::string(":" + servername + " 341 " + nickname + " " + channel + " " + nicknameinvited))
 #define RPL_YOUVEBEENINVITED(client, username, hostname, invited, channel) \
     (std::string (":" + client + "!" + username + "@" + hostname + " INVITE " + invited + " :" + channel))
-// #define RPL_YOUVEBEENINVITED(servername, client, channel) \
-//     (std::string(":" + servername + " " + client + " has invited you to " + channel))
 
 // PING
 #define RPL_PONG(servername, text) (std::string(":" + servername + " PONG " + text))
@@ -81,6 +77,7 @@
 // KICK
 #define ERR_USERNOTINCHANNELKICK(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))
 #define RPL_KICKPART(client, username, hostname, channel, kickpart, nick, reason)(std::string (":" + client + "!" + username + "@" + hostname + kickpart + channel + " " + nick + reason))
+
 // GENERAL
 #define ERR_UNKNOWNCOMMAND(command) (std::string("421 " + command + " :Unknown command"))
 #define ERR_NOTREGISTERED() (std::string("451 :You have not registered"))  // Error si mandamos algo sin estar registrados
@@ -91,5 +88,9 @@
 #define RPL_ENDOFWHO(server, client, channel) \
     (std::string (":" + server + " 315 " + client + " " + channel + " :End of /WHO list."))
 
+// TOPIC
+#define RPL_NOTOPIC(servername, channel) (std::string(":" + servername + " 331 " + channel + " :No topic is set"))
+#define RPL_TOPIC(servername, channel, topic) (std::string(":" + servername + " 332 " + channel + " " + topic))
+// #define RPL_CHANGETOPIC(client, user, host, channel, topic) (std::string (":" + client + "!" + user + "@" + host + " TOPIC " + channel + " :" + topic))
+#define RPL_CHANGETOPIC(client, user, host, channel, topic) (std::string (":" + client + "!" + user + "@" + host + " TOPIC " + channel + " " + topic))
 #endif // RESPONSES_HPP
-

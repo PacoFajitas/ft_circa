@@ -22,7 +22,9 @@ private:
     std::map<int, Client*> clients;
 	std::map<std::string, Channel*> channels;
     std::map<int, FileTransfer*> activeTransfers;
+    Client *_bot;
 
+    void initializeBot();
     void setupSignalHandler();
     void pollSockets();
     void handlePollEvents();
@@ -50,6 +52,7 @@ public:
 	void	sendResponse(int client_fd, const std::string& message);
 	std::string	getServerName() const;
 	std::string	getPassword() const;
+    Client *getBot();
 	void broadcastMessage(const std::string& message, const std::set<int>& include_fds, const std::set<int>& exclude_fds);
     void deleteChannel(std::string name);
 

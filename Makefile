@@ -10,7 +10,7 @@ CFLAGS = -Werror -Wextra -Wall -g -fsanitize=address -std=c++98
 FILES = channel client commands joinCommand main modeCommand nickCommand\
 		passCommand pingCommand pongCommand server socketUtils userCommand\
 		utils whoCommand partCommand privmsgCommand fileTransfer cscCommand\
-		kickCommand inviteCommand\
+		kickCommand inviteCommand topicCommand\
 		
 
 FILES += #pass nick user join privmsg topic 

@@ -3,6 +3,7 @@
 #include "client.hpp"
 #include "commands.hpp"
 #include "responses.hpp"
+#include "bot.hpp"
 #include "utils.hpp"
 #include <iostream>
 
@@ -29,7 +30,7 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     if (!channel) 
     {
         // Crear un nuevo canal si no existe
-        channel = new Channel(channelName, server, client);
+        channel = new Channel(channelName, server, client, server.getBot());
         server.addChannel(channel);
     }
     else if (channel->getMode('i') == true && !channel->isUserRole(client, "INVITED"))
@@ -66,5 +67,8 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
 
     // Enviar fin de la lista de nombres
     server.sendResponse(client.getSocketFD(), RPL_ENDOFNAMES(client.getNickname(),channel->getName()));
+
+    //Mensaje de bienvenida del bot al canal
+    server.sendResponse(client.getSocketFD(),RPL_PRIVMSG(channel->getBot()->getNickname(), channel->getName(), MESSAGE1));
 }
 

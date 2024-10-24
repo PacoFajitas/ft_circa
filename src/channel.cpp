@@ -4,7 +4,7 @@
 #include "utils.hpp"
 
 //El modo +o no es un modo de canal es para dar o quitar permisos de operador a un cliente en concreto dentro de cada canal
-Channel::Channel(const std::string& channel_name, Server& srv, Client &client) : name(channel_name), server(srv) 
+Channel::Channel(const std::string& channel_name, Server& srv, Client &client, Client *bot) : name(channel_name), server(srv), _bot(bot)
 {
 	std::cout << "Canal creado: " << name << std::endl;
     manageUser(&client, OPERATOR, true);
@@ -279,6 +279,11 @@ Client	*Channel::getUser(std::string nick)
         it++;  
     }
     return NULL;
+}
+
+Client *Channel::getBot()
+{
+	return _bot;
 }
 
 // METHODS
