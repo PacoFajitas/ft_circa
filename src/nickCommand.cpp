@@ -1,5 +1,6 @@
 // nickCommand.cpp
 #include "commands.hpp"
+#include "channel.hpp"
 #include "responses.hpp"
 #include "server.hpp"
 #include "utils.hpp"
@@ -43,12 +44,31 @@ bool	validateNickname(const std::string& nickname, Client& client, Server& serve
 // Para cambiar a otro nick // No hay que  comprobar que el nick existe????
 void	changeNickname(Client& client, const std::string& nickname, Server& server) {
 	std::string oldNickname = client.getNickname();
+	std::vector<Channel*>vec = server.getChannelsFromClient(client);
 	client.setNickname(nickname);
-	std::string message = ":" + oldNickname + "!" + client.getUsername() + "@" + client.getHostname() + " NICK :" + nickname;
-	std::set<int> exclude_fds;
-	exclude_fds.insert(client.getSocketFD());
-	server.broadcastMessage(message, std::set<int>(), exclude_fds);
+	for ( std::vector<Channel*>::iterator it = vec.begin(); it != vec.end(); ++it)
+	{
+		Channel* temp = *it;
+		temp->sendMessage(RPL_NICKCHANGE(oldNickname, client.getUsername(), client.getHostname(), client.getNickname()), client.getSocketFD());
+		std::string clientList;
+    	const std::vector<Client*>& participants = temp->getUsersWithRole("INCHANNEL");
+		printClientVector(participants);
+    	for (size_t i = 0; i < participants.size(); ++i) {
+        if (temp->isUserRole(*participants[i], "OPERATOR"))
+            clientList += "@";
+        clientList += participants[i]->getNickname();
+        if (i < participants.size() - 1) {
+            clientList += " ";
+        }
+    	}
 
+		// Enviar la lista de usuarios (NAMES) solo al cliente que acaba de unirse
+    	server.sendResponse(client.getSocketFD(), RPL_NAMREPLY(server.getServerName(), client.getNickname(), temp->getName(), clientList));
+		temp->sendMessage(RPL_ENDOFNAMES(client.getNickname(),temp->getName()), -1);
+	}
+	
+	// exclude_fds.insert(client.getSocketFD());
+	// server.broadcastMessage(message, std::set<int>(), exclude_fds);
 	//server.broadcastMessage(message, std::set<int>(), std::set<int>{client.getSocketFD()});
 
 }

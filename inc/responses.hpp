@@ -6,6 +6,8 @@
 #define ERR_NICKNAMEINUSE(nickname) (std::string("433 ") + nickname + " :Nickname is already in use")
 #define ERR_NONICKNAMEGIVEN() (std::string("431 :No nickname given"))
 #define ERR_NICKCOLLISION(nickname) (std::string("436 ") + nickname + " :Nickname collision KILL")
+#define RPL_NICKCHANGE(oldnick, user, host, nick)(std::string(":") + oldnick + "!" + user + "@" + host + " NICK :" + nick)
+//:NICK_ANTERIOR!user@host NICK :NUEVO_NICK
 
 // USER
 #define ERR_NEEDMOREPARAMS(client, command) (std::string("461 ") + (client) + " " +(command) + " :Not enough parameters")
@@ -66,7 +68,7 @@
 #define RPL_INVITING(servername, nickname, channel, nicknameinvited) \
     (std::string(":" + servername + " 341 " + nickname + " " + channel + " " + nicknameinvited))
 #define RPL_YOUVEBEENINVITED(client, username, hostname, invited, channel) \
-    (std::string (":" + client + "!" + username + "@" + hostname + " INVITE " + invited + " :" + channel))
+    (std::string (":" + client + "!" + username + "@" + hostname + " INVITE " + invited + " " + channel))
 
 // PING
 #define RPL_PONG(servername, text) (std::string(":" + servername + " PONG " + text))
@@ -90,7 +92,8 @@
 
 // TOPIC
 #define RPL_NOTOPIC(servername, channel) (std::string(":" + servername + " 331 " + channel + " :No topic is set"))
-#define RPL_TOPIC(servername, channel, topic) (std::string(":" + servername + " 332 " + channel + " " + topic))
-// #define RPL_CHANGETOPIC(client, user, host, channel, topic) (std::string (":" + client + "!" + user + "@" + host + " TOPIC " + channel + " :" + topic))
+#define RPL_TOPIC(servername, client, channel, topic) (std::string(":" + servername + " 332 " + client + " " + channel + " " + topic))
 #define RPL_CHANGETOPIC(client, user, host, channel, topic) (std::string (":" + client + "!" + user + "@" + host + " TOPIC " + channel + " " + topic))
+
+
 #endif // RESPONSES_HPP

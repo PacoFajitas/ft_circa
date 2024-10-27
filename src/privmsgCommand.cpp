@@ -22,11 +22,10 @@ void handlePrivmsgCommand(Client& client, const std::vector<std::string>& tokens
         server.sendResponse(client.getSocketFD(), ERR_NOSUCHNICK(server.getServerName(), recipientNick));
         return;
     }
-    std::string formattedMessage = ":" + client.getNickname() + " PRIVMSG " + recipientNick + " :" + message;
     if (recipientClient)
-        server.sendResponse(recipientClient->getSocketFD(), formattedMessage);
+        server.sendResponse(recipientClient->getSocketFD(), RPL_PRIVMSG(client.getNickname(), recipientClient->getNickname(), message));
     else
-        recipientChannel->sendMessage(formattedMessage, client.getSocketFD()); 
+        recipientChannel->sendMessage(RPL_PRIVMSG(client.getNickname(), recipientNick, message), client.getSocketFD()); 
 }
 
 

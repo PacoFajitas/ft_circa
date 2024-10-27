@@ -58,6 +58,7 @@ public:
 
 	const	std::map<int, Client*>& getClients() const;
 	Channel* getChannel(const std::string& channel_name);
+    std::vector<Channel *> getChannelsFromClient(Client& user);
 	void addChannel(Channel* channel);
 	void    sendPing(Client& client);
 	std::vector<Client*> getChannelUsers(const std::string& channelName);

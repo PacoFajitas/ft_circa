@@ -26,7 +26,7 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
 
     std::string channelName = tokens[1];
     Channel* channel = server.getChannel(channelName);
-
+    std::string err;
     if (!channel) 
     {
         // Crear un nuevo canal si no existe
@@ -34,34 +34,31 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
         server.addChannel(channel);
     }
     else if (channel->getMode('i') == true && !channel->isUserRole(client, "INVITED"))
-    {
-        server.sendResponse(client.getSocketFD(),ERR_INVITEONLYCHAN(channel->getName()));
-        return ;
-    }
+        err = ERR_INVITEONLYCHAN(channel->getName());
+    else if (channel->getMode('l') && channel->getUsersWithRole("INCHANNEL").size() == (unsigned)channel->getLimitUsers())
+        err = ERR_CHANNELISFULL(client.getNickname(), channel->getName());
+    else if (channel->getMode('k') && tokens.size() < 3)
+        err = ERR_BADCHANNELKEY(client.getNickname(), channel->getName());
+    else if (channel->getMode('k') && tokens.size() >= 3 && tokens[2] != channel->getPassword())
+        err = ERR_BADCHANNELKEY(client.getNickname(), channel->getName());
     else
         channel->manageUser(&client, PARTICIPANT, true);
 
+    if (!err.empty())
+    {
+        server.sendResponse(client.getSocketFD(), err);
+        return ;
+    }
+    
     server.sendResponse(client.getSocketFD(), 
         RPL_JOIN(client.getNickname(), client.getUsername(), client.getHostname(), channel->getName()));
-
+   
     channel->sendMessage(RPL_JOIN(client.getNickname(), client.getUsername(), client.getHostname(), 
         channel->getName()), client.getSocketFD());
-    
     if (!channel->getTopic().empty())
-        server.sendResponse(client.getSocketFD(), RPL_TOPIC(server.getServerName(), channel->getName(), channel->getTopic()));
+        server.sendResponse(client.getSocketFD(), RPL_TOPIC(server.getServerName(), client.getNickname(), channel->getName(), channel->getTopic()));
 
-    // 5. Construir y enviar la lista de usuarios como un mensaje de canal (NAMES)
-    std::string clientList;
-    const std::vector<Client*>& participants = channel->getUsersWithRole("INCHANNEL");
-    for (size_t i = 0; i < participants.size(); ++i) {
-        if (channel->isUserRole(*participants[i], "OPERATOR"))
-            clientList += "@";
-        clientList += participants[i]->getNickname();
-        if (i < participants.size() - 1) {
-            clientList += " ";
-        }
-    }
-
+    std::string clientList = channel->clientOpList();
     // Enviar la lista de usuarios (NAMES) solo al cliente que acaba de unirse
     server.sendResponse(client.getSocketFD(), RPL_NAMREPLY(server.getServerName(), client.getNickname(), channel->getName(), clientList));
 
@@ -69,6 +66,6 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     server.sendResponse(client.getSocketFD(), RPL_ENDOFNAMES(client.getNickname(),channel->getName()));
 
     //Mensaje de bienvenida del bot al canal
-    server.sendResponse(client.getSocketFD(),RPL_PRIVMSG(channel->getBot()->getNickname(), channel->getName(), MESSAGE1));
+    // server.sendResponse(client.getSocketFD(),RPL_PRIVMSG(channel->getBot()->getNickname(), channel->getName(), MESSAGE1));
 }
 
