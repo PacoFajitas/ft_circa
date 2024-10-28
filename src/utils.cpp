@@ -6,6 +6,17 @@
 #include <cstdlib>  // Para usar atoi
 
 
+// // Función auxiliar para validar si el nickname contiene caracteres válidos
+// bool isValidNick(const std::string& nick) {
+// 	std::string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`^{}|_";
+//     if (nick.empty())
+//         return false;
+//     if (nick.find_first_not_of(validChars) != std::string::npos)
+//         return false;
+//     return true;
+// }
+
+
 // Declaración de la lista de comandos válidos
 std::set<std::string> initializeValidCommands() {
     std::set<std::string> commands;

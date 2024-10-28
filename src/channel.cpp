@@ -321,14 +321,14 @@ void Channel::setModeSentToClient(const Client& client) {
     clientsWithModeSent.insert(client.getSocketFD());
 }
 
-// -1 para mandar a todos
+// Sends a message to everyone except _fd, -1 to send to everyone in channel
 void    Channel::sendMessage(const std::string& message, const int _fd) {
-    for (std::map<Client *, UserRole>::const_iterator it = users.begin(); it != users.end(); ++it) {
-        int fd = it->first->getSocketFD();
-        // Si fd no está en exclude_fds, enviamos el mensaje.
-        if (fd != _fd) {
+    std::vector<Client *> tmp = getUsersWithRole("INCHANNEL");
+    for (std::vector<Client *>::const_iterator it = tmp.begin(); it != tmp.end(); ++it) 
+    {
+        int fd = (*it)->getSocketFD();
+        if (fd != _fd)
             server.sendResponse(fd, message);
-        }
     }
 }
 

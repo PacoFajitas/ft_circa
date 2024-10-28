@@ -29,6 +29,11 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     std::string err;
     if (!channel) 
     {
+        if (!server.isValidNickChan(channelName, true))
+        {
+            server.sendResponse(client.getSocketFD(), ERR_NOSUCHCHANNEL(channelName));
+            return ;
+        }
         // Crear un nuevo canal si no existe
         channel = new Channel(channelName, server, client, server.getBot());
         server.addChannel(channel);
@@ -66,6 +71,7 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     server.sendResponse(client.getSocketFD(), RPL_ENDOFNAMES(client.getNickname(),channel->getName()));
 
     //Mensaje de bienvenida del bot al canal
+    server.sendBotMessage(client.getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client.getNickname(), MESSAGE1));
     // server.sendResponse(client.getSocketFD(),RPL_PRIVMSG(channel->getBot()->getNickname(), channel->getName(), MESSAGE1));
 }
 

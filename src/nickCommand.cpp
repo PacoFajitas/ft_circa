@@ -6,13 +6,6 @@
 #include "utils.hpp"
 
 
-// Función auxiliar para validar si el nickname contiene caracteres válidos
-static	bool isInvalidNick(const std::string& nick) {
-	std::string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`^{}|_";
-	return (nick.empty() || nick.find_first_not_of(validChars) != std::string::npos);
-}
-
-
 bool	isNicknameInUse(const std::string& nickname, const Server& server) {
 	const std::map<int, Client*>& clients = server.getClients();
 	std::map<int, Client*>::const_iterator it = clients.begin();
@@ -29,7 +22,7 @@ bool	isNicknameInUse(const std::string& nickname, const Server& server) {
 
 // Para validar el nick, primero si son caracteres validos, luego si ya existe
 bool	validateNickname(const std::string& nickname, Client& client, Server& server) {
-	if (isInvalidNick(nickname)) {
+	if (!server.isValidNickChan(nickname, false)) {
 		server.sendResponse(client.getSocketFD(), ERR_ERRONEUSNICKNAME(nickname));
 		return (false);
 		}
@@ -46,32 +39,17 @@ void	changeNickname(Client& client, const std::string& nickname, Server& server)
 	std::string oldNickname = client.getNickname();
 	std::vector<Channel*>vec = server.getChannelsFromClient(client);
 	client.setNickname(nickname);
-	for ( std::vector<Channel*>::iterator it = vec.begin(); it != vec.end(); ++it)
+	for (std::vector<Channel*>::iterator it = vec.begin(); it != vec.end(); ++it)
 	{
-		Channel* temp = *it;
-		temp->sendMessage(RPL_NICKCHANGE(oldNickname, client.getUsername(), client.getHostname(), client.getNickname()), client.getSocketFD());
-		std::string clientList;
-    	const std::vector<Client*>& participants = temp->getUsersWithRole("INCHANNEL");
-		printClientVector(participants);
-    	for (size_t i = 0; i < participants.size(); ++i) {
-        if (temp->isUserRole(*participants[i], "OPERATOR"))
-            clientList += "@";
-        clientList += participants[i]->getNickname();
-        if (i < participants.size() - 1) {
-            clientList += " ";
-        }
-    	}
-
-		// Enviar la lista de usuarios (NAMES) solo al cliente que acaba de unirse
-    	server.sendResponse(client.getSocketFD(), RPL_NAMREPLY(server.getServerName(), client.getNickname(), temp->getName(), clientList));
-		temp->sendMessage(RPL_ENDOFNAMES(client.getNickname(),temp->getName()), -1);
+		Channel* channel = *it;
+		std::string clientList = channel->clientOpList();
+		channel->sendMessage(RPL_NICKCHANGE(oldNickname, client.getUsername(), client.getHostname(), client.getNickname()), -1);
+    	channel->sendMessage(RPL_NAMREPLY(server.getServerName(), client.getNickname(), channel->getName(), clientList), -1);
+        channel->sendMessage(RPL_ENDOFNAMES(client.getNickname(),channel->getName()), -1);
 	}
-	std::string nickMessage = ":" + oldNickname + " NICK " + client.getNickname(); 
-	server.sendResponse(client.getSocketFD(), nickMessage);
-	// exclude_fds.insert(client.getSocketFD());
-	// server.broadcastMessage(message, std::set<int>(), exclude_fds);
-	//server.broadcastMessage(message, std::set<int>(), std::set<int>{client.getSocketFD()});
-
+	// std::string nickMessage = ":" + oldNickname + " NICK " + client.getNickname(); 
+	// server.sendResponse(client.getSocketFD(), RPL_NICKUSER(oldNickname, client.getNickname()));
+	server.sendResponse(client.getSocketFD(), RPL_NICKCHANGE(oldNickname, client.getUsername(), client.getHostname(), client.getNickname()));
 }
 
 // Funcion registro de cliente, cuando tenemos todos los campos OK

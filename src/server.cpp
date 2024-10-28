@@ -21,6 +21,27 @@
 #include "fileTransfer.hpp"
 
 
+bool Server::isValidNickChan(std::string str, bool ischan)
+{
+    if (str.empty())
+        return false;
+    if (!ischan && (str.at(0) == '#' || str.at(0) == '&'))
+        return false;
+    if (ischan && str.at(0) != '#' && str.at(0) != '&')
+        return false;
+    if (ischan && str.size() < 2)
+        return false;
+    std::string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-[]\\`^{}|_";
+    if (ischan && str.substr(1).find_first_not_of(validChars) != std::string::npos)
+        return false;
+    if (!ischan && str.find_first_not_of(validChars) != std::string::npos)
+        return false;
+    if (str == "KICK" || str == "INVITE" || str == "MODE" || str == "JOIN" || str == "TOPIC" || str == "PASS" || str == "NICK" || str == "USER"
+        || str == "PING" || str == "PONG" || str == "PART" || str == "PRIVMSG" || str == "WHO" || str == "NAMES")
+        return false;
+    return true;
+}
+
 
 //Volatile para que no cachee sino que la consulte siempre
 //sig_atomic_t tipo de C y CPP para variables que pueden modificadarse en un manejador de señales,
@@ -82,10 +103,12 @@ void	Server::setupSignalHandler() {
 void    Server::initializeBot()
 {
     _bot = new Client(-1);
-    _bot->setRealname("BeepBoop");
-    _bot->setNickname("CommunistBeepBoop");
+    _bot->setRealname("Wall-E•ᴗ•");
+    _bot->setNickname("Wall-E•ᴗ•");
     _bot->setHostname("8.8.8.8");
-    _bot->setUsername("CommunistBeepBoop");
+    _bot->setUsername("Wall-E•ᴗ•");
+    _bot->setAuthenticated(true);
+    _bot->setRegistered(true);
 }
 
 void	Server::configureServer(int port, std::string password) {

@@ -45,6 +45,7 @@ private:
 
 public:
     Server(); // Constructor sin parámetros
+    bool isValidNickChan(std::string str, bool ischan);
     void	start();
     void	run();
 	void	configureServer(int port, std::string password);

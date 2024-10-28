@@ -7,6 +7,8 @@
 #include <set>
 #include "server.hpp"
 
+// bool isValidNick(const std::string& nick);
+
 bool    is_valid_number(const char* str);	// Para el main
 bool    is_valid_port(const char* argument);
 

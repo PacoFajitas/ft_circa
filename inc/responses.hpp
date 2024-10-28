@@ -7,7 +7,7 @@
 #define ERR_NONICKNAMEGIVEN() (std::string("431 :No nickname given"))
 #define ERR_NICKCOLLISION(nickname) (std::string("436 ") + nickname + " :Nickname collision KILL")
 #define RPL_NICKCHANGE(oldnick, user, host, nick)(std::string(":") + oldnick + "!" + user + "@" + host + " NICK :" + nick)
-//:NICK_ANTERIOR!user@host NICK :NUEVO_NICK
+#define RPL_NICKUSER(oldnick, newnick) (std::string (":" + oldnick + " NICK " + newnick))
 
 // USER
 #define ERR_NEEDMOREPARAMS(client, command) (std::string("461 ") + (client) + " " +(command) + " :Not enough parameters")
