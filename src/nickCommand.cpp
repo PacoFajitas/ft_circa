@@ -66,7 +66,8 @@ void	changeNickname(Client& client, const std::string& nickname, Server& server)
     	server.sendResponse(client.getSocketFD(), RPL_NAMREPLY(server.getServerName(), client.getNickname(), temp->getName(), clientList));
 		temp->sendMessage(RPL_ENDOFNAMES(client.getNickname(),temp->getName()), -1);
 	}
-	
+	std::string nickMessage = ":" + oldNickname + " NICK " + client.getNickname(); 
+	server.sendResponse(client.getSocketFD(), nickMessage);
 	// exclude_fds.insert(client.getSocketFD());
 	// server.broadcastMessage(message, std::set<int>(), exclude_fds);
 	//server.broadcastMessage(message, std::set<int>(), std::set<int>{client.getSocketFD()});
