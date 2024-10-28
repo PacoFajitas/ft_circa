@@ -74,6 +74,7 @@ public:
     void handleFileSendRequest(Client& client, const std::vector<std::string>& tokens);
     void broadcastMessage(const std::string& message, const std::set<int>& include_fds);
     void sendBotMessage(int client_fd, const std::string& response);
+    void sendBotWelcome(Client *client, Channel *channel);
 
 	~Server();
 

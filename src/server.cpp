@@ -256,6 +256,14 @@ void Server::handleWrite(int client_fd) {
     // Aquí podemos manejar la lógica de escritura si se requiere en el futuro
 }
 
+void Server::sendBotWelcome(Client *client, Channel *channel)
+{
+   sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "          | Hi!! |"));
+   sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "    /)  /)_   ___|"));
+   sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "   (• ^ •) \\/"));
+    sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname()," </       \\>  "));
+//    sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "            .                     じしˍ,)ノ"));
+}
 
 void Server::sendBotMessage(int client_fd, const std::string& response)
 {

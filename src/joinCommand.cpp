@@ -71,7 +71,8 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     server.sendResponse(client.getSocketFD(), RPL_ENDOFNAMES(client.getNickname(),channel->getName()));
 
     //Mensaje de bienvenida del bot al canal
-    server.sendBotMessage(client.getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client.getNickname(), MESSAGE1));
+    // server.sendBotMessage(client.getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client.getNickname(), MESSAGE1));
+    server.sendBotWelcome(&client, channel);
     // server.sendResponse(client.getSocketFD(),RPL_PRIVMSG(channel->getBot()->getNickname(), channel->getName(), MESSAGE1));
 }
 
