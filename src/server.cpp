@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:59:23 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:59:23 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/29 17:11:56 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,21 +239,58 @@ bool Server::nickUsed(std::string nickname)
 
 
 // Manejar la comunicación con los clientes
-void Server::handleClient(int client_fd) 
+void Server::handleClient(int client_fd)
 {
 	Client* client = clients[client_fd];
     if (!client->receiveData(*this)) {  // Si falla la recepción de datos, desconectar
         std::cout << "Client disconnected: " << client_fd << std::endl;
         close(client_fd);
-        for (std::vector<pollfd>::iterator it = poll_fds.begin(); it != poll_fds.end(); ) {
-            if (it->fd == client_fd) {
-                it = poll_fds.erase(it);
-            } else
-                ++it;
-        }
-        delete clients[client_fd];
-        clients.erase(client_fd);
+		disconnectClient(client, "Client disconnected");
     }
+}
+void Server::disconnectClient(Client* client, const std::string& quitMessage) 
+{
+    int client_fd = client->getSocketFD();
+    // Construir mensaje de QUIT
+    std::string message = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " QUIT :" + quitMessage;
+    // Eliminar al cliente de todos los canales y notificar a otros usuarios
+    std::map<std::string, Channel*>::iterator it = channels.begin();
+    while (it != channels.end()) {
+        Channel* channel = it->second;
+        if (channel->isUserInChannel(client->getNickname())) {
+            // Notificar a los demás usuarios en el canal
+            channel->sendMessage(message, client_fd);
+            // Eliminar al cliente del canal
+            channel->manageUser(client, PARTICIPANT, false);
+            // Si el canal queda vacío, eliminarlo
+            if (channel->getUsers().empty()) {
+                // Primero, obtener el nombre del canal antes de borrarlo
+                std::string channelName = channel->getName();
+                // Eliminar el canal del mapa
+                deleteChannel(channelName);
+                // Borrar el canal del mapa y avanzar el iterador
+                std::map<std::string, Channel*>::iterator itToErase = it;
+                ++it;
+                channels.erase(itToErase);
+                continue; // Continuar sin incrementar el iterador nuevamente
+            }
+        }
+        ++it; // Incrementar el iterador normalmente
+    }
+    // Eliminar el cliente del mapa de clientes
+    clients.erase(client_fd);
+    // Cerrar y eliminar el socket del cliente
+    close(client_fd);
+    std::vector<pollfd>::iterator pollIt = poll_fds.begin();
+    while (pollIt != poll_fds.end()) {
+        if (pollIt->fd == client_fd) {
+            pollIt = poll_fds.erase(pollIt);
+        } else {
+            ++pollIt;
+        }
+    }
+    // Liberar la memoria del objeto Client
+    delete client;
 }
 
 // Retorna el nombre del servidor configurado

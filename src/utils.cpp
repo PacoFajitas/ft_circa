@@ -25,7 +25,7 @@ std::set<std::string> initializeValidCommands() {
     commands.insert("USER");
     commands.insert("JOIN");
     commands.insert("PART");
-    commands.insert("QUIT");
+    // commands.insert("QUIT");
     commands.insert("PRIVMSG");
     return commands;
 }
