@@ -7,17 +7,16 @@ CFLAGS = -Werror -Wextra -Wall -g -fsanitize=address -std=c++98
 #########
 
 #########
-FILES = channel client commands joinCommand main modeCommand nickCommand\
-		passCommand pingCommand pongCommand server socketUtils userCommand\
-		utils whoCommand partCommand privmsgCommand fileTransfer cscCommand\
-		kickCommand inviteCommand topicCommand\
+FILES = channel client cscCommand fileTransfer main server socketUtils utils \
 		
 
-FILES += #pass nick user join privmsg topic 
+FILES += inviteCommand joinCommand kickCommand modeCommand nickCommand partCommand \
+		 passCommand pingCommand pongCommand privmsgCommand processCommand \
+		 topicCommand userCommand whoCommand \
 
 SRC = $(addsuffix .cpp, $(FILES))
 
-INC = inc
+INC = inc -I inc/commands
 vpath %.cpp src src/commands
 #########
 

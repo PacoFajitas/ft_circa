@@ -1,12 +1,69 @@
-#include "modeCommand.hpp"
-#include "responses.hpp"
-#include "server.hpp"
-#include "client.hpp"
-#include "channel.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   modeCommand.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:36:41 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:40:17 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "commands.hpp"
+#include "utils.hpp"
 
+static int countModeArgs(std::vector<std::string> arg)
+{
+    int ret = 0;
+    bool startCount = false;
+    std::vector<std::string>::iterator it;
 
-void handleModeCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
+    it = arg.begin();
+    while (it != arg.end())
+    {
+        if (startCount)
+            ret++;
+        if (it->at(0) == '-' || it->at(0) == '+')
+            startCount = true;
+        ++it; 
+    }    
+	return ret;
+}
+
+static std::vector<std::string> getArgs(std::vector<std::string> arg)
+{
+    std::vector<std::string> ret;
+    bool startCount = false;
+    std::vector<std::string>::iterator it;
+
+    it = arg.begin();
+    while (it != arg.end())
+    {
+        if (startCount)
+            ret.push_back(*it);
+        if (it->at(0) == '-' || it->at(0) == '+')
+            startCount = true;
+        ++it; 
+    }
+    return ret;
+}
+
+static int countModeFlags(std::string arg, bool active)
+{
+    int ret = 0;
+    for (size_t i = 0; i < arg.length(); i++)
+    {
+        if (active && arg.at(i) != '+' && arg.at(i) != '-' && arg.at(i) != 'i' && arg.at(i) != 't')
+            ret++;
+        else if(!active && arg.at(i) == 'o')
+            ret++;
+    }
+	return ret;
+}
+
+void handleModeCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
+{
     if (tokens.size() < 2) {
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "MODE"));
         return;
@@ -94,7 +151,8 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
                 else
                     server.sendResponse(client.getSocketFD(), ERR_USERNOTINCHANNEL(server.getServerName(), args[numPar], channel->getName()));
                 numPar++;
-            }else if (!active)
+            }
+            else if (!active)
                 channel->setMode(mode.at(i), active);
             else
             {
@@ -111,51 +169,5 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     }
 }
 
-int countModeFlags(std::string arg, bool active)
-{
-    int ret = 0;
-    for (size_t i = 0; i < arg.length(); i++)
-    {
-        if (active && arg.at(i) != '+' && arg.at(i) != '-' && arg.at(i) != 'i' && arg.at(i) != 't')
-            ret++;
-        else if(!active && arg.at(i) == 'o')
-            ret++;
-        
-    }
-	return ret;
-}
 
-int countModeArgs(std::vector<std::string> arg)
-{
-    int ret = 0;
-    bool startCount = false;
-    std::vector<std::string>::iterator it;
 
-    it = arg.begin();
-    while (it != arg.end())
-    {
-        if (startCount)
-            ret++;
-        if (it->at(0) == '-' || it->at(0) == '+')
-            startCount = true;
-        ++it; 
-    }    
-	return ret;
-}
-std::vector<std::string> getArgs(std::vector<std::string> arg)
-{
-    std::vector<std::string> ret;
-    bool startCount = false;
-    std::vector<std::string>::iterator it;
-
-    it = arg.begin();
-    while (it != arg.end())
-    {
-        if (startCount)
-            ret.push_back(*it);
-        if (it->at(0) == '-' || it->at(0) == '+')
-            startCount = true;
-        ++it; 
-    }
-    return ret;
-}

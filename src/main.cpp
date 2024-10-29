@@ -1,11 +1,20 @@
-// main.cpp
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:57:31 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:57:34 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <iostream>
 #include <cstdlib> // Para std::atoi
 #include "utils.hpp"
 #include "server.hpp"
 #include "client.hpp"
-#include "modeCommand.hpp"
 
 
 int main(int argc, char *argv[]) {

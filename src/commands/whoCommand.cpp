@@ -1,10 +1,19 @@
-#include "whoCommand.hpp"
-#include "responses.hpp"
-#include "server.hpp"
-#include "client.hpp"
-#include "channel.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   whoCommand.cpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:52:48 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:52:48 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-void handleWhoCommand(Client& client, const std::string& channelName, Server& server) {
+#include "commands.hpp"
+
+void handleWhoCommand(Client& client, const std::string& channelName, Server& server) 
+{
     // Obtener los usuarios en el canal
     Channel* channel = server.getChannel(channelName);
     if (!channel) {

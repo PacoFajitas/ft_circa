@@ -6,22 +6,11 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 17:30:52 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/21 20:26:52 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/29 16:32:18 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "inviteCommand.hpp"
-
-// Command: INVITE
-// Parameters: </invite> <nickname> <channel>
-
-// RPL_INVITING (341)
-// ERR_NEEDMOREPARAMS (461)
-// ERR_NOSUCHCHANNEL (403)
-// ERR_NOTONCHANNEL (442)
-// ERR_CHANOPRIVSNEEDED (482)
-// ERR_USERONCHANNEL (443)
-
+#include "commands.hpp"
 
 void handleInviteCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
 {

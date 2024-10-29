@@ -1,35 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   partCommand.cpp                                    :+:      :+:    :+:   */
+/*   kickCommand.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/17 18:27:07 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/22 20:30:21 by mlopez-i         ###   ########.fr       */
+/*   Created: 2024/10/16 17:38:48 by tfiguero          #+#    #+#             */
+/*   Updated: 2024/10/29 16:34:58 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "partCommand.hpp"
-#include "utils.hpp"
+#include "commands.hpp"
 
-void handlePartCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
+void handleKickCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
 {
-	if (tokens.size() < 2)
+	if (tokens.size() < 3)
 	{
-		server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "PART"));
+		server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
 		return ;
 	}
-	std::string err;
 	Channel *channel = server.getChannel(tokens[1]);
+	std::string err;
 	if (!channel)
-		err = ERR_NOSUCHCHANNEL(tokens[1]);
+		err = ERR_NOSUCHCHANNEL(channel->getName());
 	else if (!channel->isUserRole(client, "INCHANNEL"))
 		err = ERR_NOTONCHANNEL(server.getServerName(), channel->getName());
-	if (!err.empty())
+	else if (!channel->isUserRole(client, "OPERATOR"))
+		err = ERR_CHANOPRIVSNEEDED(server.getServerName(), channel->getName());
+	else if (!channel->isUserInChannel(tokens[2]))
+		err = ERR_USERNOTINCHANNEL(server.getServerName(), tokens[2], channel->getName());
+	if(!err.empty())
 	{
-		server.sendResponse(client.getSocketFD(), err);
-		return;
+		server.sendResponse(client.getSocketFD(),err);
+		return ;
 	}
 	
 	std::string resp = "";
@@ -43,16 +46,16 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 			resp += tokens[i];
 		}
 	}
-	server.sendResponse(client.getSocketFD(), RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
-		channel->getName(), " PART ", client.getNickname(), resp));
-	channel->manageUser(channel->getUser(client.getNickname()), PARTICIPANT, false);
+	server.sendResponse(channel->getUser(tokens[2])->getSocketFD(), RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
+		channel->getName(), " KICK ", tokens[2], resp));
+	channel->manageUser(channel->getUser(tokens[2]), PARTICIPANT, false);
 	if (channel->getUsers().empty())
 	{
 		server.deleteChannel(channel->getName());
 		return ;
 	}
 	channel->sendMessage(RPL_KICKPART(client.getNickname(), client.getUsername(), client.getHostname(), 
-		channel->getName(), " PART ", client.getNickname(), resp), client.getSocketFD());
+		channel->getName(), " KICK ", tokens[2], resp), -1);
 	std::string clientList = channel->clientOpList();
 	if (!clientList.empty())
     {

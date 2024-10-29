@@ -1,12 +1,18 @@
-// nickCommand.cpp
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   nickCommand.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:45:10 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:45:10 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "commands.hpp"
-#include "channel.hpp"
-#include "responses.hpp"
-#include "server.hpp"
-#include "utils.hpp"
 
-
-bool	isNicknameInUse(const std::string& nickname, const Server& server) {
+static bool	isNicknameInUse(const std::string& nickname, const Server& server) {
 	const std::map<int, Client*>& clients = server.getClients();
 	std::map<int, Client*>::const_iterator it = clients.begin();
 
@@ -21,7 +27,7 @@ bool	isNicknameInUse(const std::string& nickname, const Server& server) {
 
 
 // Para validar el nick, primero si son caracteres validos, luego si ya existe
-bool	validateNickname(const std::string& nickname, Client& client, Server& server) {
+static bool	validateNickname(const std::string& nickname, Client& client, Server& server) {
 	if (!server.isValidNickChan(nickname, false)) {
 		server.sendResponse(client.getSocketFD(), ERR_ERRONEUSNICKNAME(nickname));
 		return (false);
@@ -35,7 +41,7 @@ bool	validateNickname(const std::string& nickname, Client& client, Server& serve
 
 
 // Para cambiar a otro nick // No hay que  comprobar que el nick existe????
-void	changeNickname(Client& client, const std::string& nickname, Server& server) {
+static void	changeNickname(Client& client, const std::string& nickname, Server& server) {
 	std::string oldNickname = client.getNickname();
 	std::vector<Channel*>vec = server.getChannelsFromClient(client);
 	client.setNickname(nickname);
@@ -53,7 +59,8 @@ void	changeNickname(Client& client, const std::string& nickname, Server& server)
 }
 
 // Funcion registro de cliente, cuando tenemos todos los campos OK
-void	registerClient(Client& client, Server& server) {
+static void	registerClient(Client& client, Server& server) 
+{
 	client.setRegistered(true);//Ponemos la flag en true
 	server.sendResponse(client.getSocketFD(), RPL_WELCOME(client.getNickname(), server.getServerName(), client.getHostname()));
 	server.sendResponse(client.getSocketFD(), RPL_YOURHOST(server.getServerName(), client.getNickname()));

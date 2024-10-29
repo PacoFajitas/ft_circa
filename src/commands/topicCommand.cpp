@@ -6,11 +6,11 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 16:34:24 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/24 20:11:50 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/29 16:51:38 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "topicCommand.hpp"
+#include "commands.hpp"
 
 void handleTopicCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
 {

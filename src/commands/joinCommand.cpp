@@ -1,24 +1,20 @@
-#include "channel.hpp"
-#include "server.hpp"
-#include "client.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   joinCommand.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:33:16 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 17:04:37 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "commands.hpp"
-#include "responses.hpp"
-#include "bot.hpp"
 #include "utils.hpp"
-#include <iostream>
 
-/*********************************************************
- * *******************************************************
- * El orden en el código que funciona es:
-JOIN
-TOPIC
-NAMES
-MODE
-WHO
-**********************************************************
-*********************************************************/
-
-void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
+void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, Server& server) 
+{
     if (tokens.size() < 2) {
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "JOIN"));
         return;
@@ -27,14 +23,13 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     std::string channelName = tokens[1];
     Channel* channel = server.getChannel(channelName);
     std::string err;
-    if (!channel) 
+    if (!channel)
     {
         if (!server.isValidNickChan(channelName, true))
         {
             server.sendResponse(client.getSocketFD(), ERR_NOSUCHCHANNEL(channelName));
             return ;
         }
-        // Crear un nuevo canal si no existe
         channel = new Channel(channelName, server, client, server.getBot());
         server.addChannel(channel);
     }
@@ -48,7 +43,6 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
         err = ERR_BADCHANNELKEY(client.getNickname(), channel->getName());
     else
         channel->manageUser(&client, PARTICIPANT, true);
-
     if (!err.empty())
     {
         server.sendResponse(client.getSocketFD(), err);
@@ -64,15 +58,10 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
         server.sendResponse(client.getSocketFD(), RPL_TOPIC(server.getServerName(), client.getNickname(), channel->getName(), channel->getTopic()));
 
     std::string clientList = channel->clientOpList();
-    // Enviar la lista de usuarios (NAMES) solo al cliente que acaba de unirse
     server.sendResponse(client.getSocketFD(), RPL_NAMREPLY(server.getServerName(), client.getNickname(), channel->getName(), clientList));
-
-    // Enviar fin de la lista de nombres
     server.sendResponse(client.getSocketFD(), RPL_ENDOFNAMES(client.getNickname(),channel->getName()));
 
     //Mensaje de bienvenida del bot al canal
-    // server.sendBotMessage(client.getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client.getNickname(), MESSAGE1));
     server.sendBotWelcome(&client, channel);
-    // server.sendResponse(client.getSocketFD(),RPL_PRIVMSG(channel->getBot()->getNickname(), channel->getName(), MESSAGE1));
 }
 

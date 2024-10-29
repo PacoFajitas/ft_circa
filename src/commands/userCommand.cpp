@@ -1,11 +1,19 @@
-// userCommand.cpp
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   userCommand.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:52:19 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:52:21 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "commands.hpp"
-#include "responses.hpp"
-#include "client.hpp"
-#include "server.hpp"
 
-
-bool handleUserCommand(Client& client, const std::vector<std::string>& tokens, Server& server) {
+bool handleUserCommand(Client& client, const std::vector<std::string>& tokens, Server& server)
+{
     if (tokens.size() < 5) {
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "USER"));
         return false;
@@ -33,7 +41,5 @@ bool handleUserCommand(Client& client, const std::vector<std::string>& tokens, S
             server.sendResponse(client.getSocketFD(), RPL_MYINFO(server.getServerName(), client.getNickname()));
         }
     }
-
     return true;
 }
-

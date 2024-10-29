@@ -1,33 +1,25 @@
-// commands.cpp
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   processCommand.cpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:51:11 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:51:13 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "commands.hpp"
 #include "utils.hpp"
-#include "responses.hpp"
-#include "server.hpp"
-#include "passCommand.hpp"
-#include <iostream>
-#include "nickCommand.hpp"
-#include "userCommand.hpp"
-#include "channel.hpp"
-#include "joinCommand.hpp"
-#include "pingCommand.hpp"
-#include "pongCommand.hpp"
-#include "whoCommand.hpp"
-#include "modeCommand.hpp"
-#include "partCommand.hpp"
-#include "cscCommand.hpp"
-#include "privmsgCommand.hpp"
-#include "inviteCommand.hpp"
-#include "kickCommand.hpp"
-#include "topicCommand.hpp"
 
-bool	requireRegistration(Client& client, Server& server) {
+static bool	requireRegistration(Client& client, Server& server) {
 	if (!client.isFullyRegistered()) {
 		server.sendResponse(client.getSocketFD(), ERR_NOTREGISTERED()); // Cliente no registrado
 		return (false);
 	}
 	return (true);
 }
-
 
 bool	processCommand(const std::string& command, Client& client, Server& server) {
 	std::vector<std::string> tokens = splitString(command, " ");
@@ -115,6 +107,10 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 			std::cout << "Processing TOPIC command: " << command << std::endl;
 			std::cout << "-----------------------------" << std::endl;
 			handleTopicCommand(client, tokens, server);
+		}
+		else
+		{
+			server.sendResponse(client.getSocketFD(), ERR_UNKNOWNCOMMAND(commandName));
 		}
 	}
 	return (true);

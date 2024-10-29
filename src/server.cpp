@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 16:59:23 by mlopez-i          #+#    #+#             */
+/*   Updated: 2024/10/29 16:59:23 by mlopez-i         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -16,7 +28,6 @@
 #include "utils.hpp"
 #include "client.hpp"
 #include "channel.hpp"
-#include "privmsgCommand.hpp"
 #include "cscCommand.hpp"
 #include "fileTransfer.hpp"
 
