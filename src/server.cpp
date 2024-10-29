@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:59:23 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 17:11:56 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/29 20:12:53 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,11 +216,28 @@ void Server::acceptClient() {
 void Server::newClient(int client_fd) {
     // Crear un nuevo cliente
     Client* new_client = new Client(client_fd);
-
+    //almacena la información de la dirección IP y el puerto del cliente
+    struct sockaddr_in clientAddr;
+    std::cout << "pito pito" << std::endl;
+    //Almacena en addrLen el tamano de la estructura sockaddr_in
+    socklen_t addrLen = sizeof(clientAddr);
+    //getpeername obtiene la dirección IP y el puerto del par conectado al socket client_fd
+     if (getpeername(client_fd, (struct sockaddr*)&clientAddr, &addrLen) == 0) {
+        //
+        char ipStr[INET_ADDRSTRLEN];
+        //inet_ntop convierte la IP de binario [&(clientAddr.sin_addr)] a decimal
+        //Lo guarda en ipSTR
+        inet_ntop(AF_INET, &(clientAddr.sin_addr), ipStr, INET_ADDRSTRLEN);
+        std::string ip = ipStr;
+        std::cout << "gorgorito" << ip<< std::endl;
+        new_client->setHostname(ip);
+    }
+    new_client->setConnected(true);
     // Añadir el nuevo cliente al mapa de clientes
 	clients[client_fd] = new_client;
     // Añadir el nuevo cliente a los descriptores supervisados por poll
     addPollFd(poll_fds, client_fd, POLLIN);
+    // new_client->setHostname(client_fd.getHostname)
 
     // Mensaje de confirmación
 	std::cout << "New client connected: " << client_fd << std::endl;
@@ -245,6 +262,7 @@ void Server::handleClient(int client_fd)
     if (!client->receiveData(*this)) {  // Si falla la recepción de datos, desconectar
         std::cout << "Client disconnected: " << client_fd << std::endl;
         close(client_fd);
+        std::cout << "Holiiiiiiiiiiiiiiiiiiiii" << std::endl;
 		disconnectClient(client, "Client disconnected");
     }
 }
@@ -269,10 +287,7 @@ void Server::disconnectClient(Client* client, const std::string& quitMessage)
                 // Eliminar el canal del mapa
                 deleteChannel(channelName);
                 // Borrar el canal del mapa y avanzar el iterador
-                std::map<std::string, Channel*>::iterator itToErase = it;
-                ++it;
-                channels.erase(itToErase);
-                continue; // Continuar sin incrementar el iterador nuevamente
+                //  el iterador nuevamente
             }
         }
         ++it; // Incrementar el iterador normalmente
@@ -415,9 +430,6 @@ void Server::cleanup() {
 	}
 	activeTransfers.clear();
 
-    // Cerrar el socket del servidor
-    close(socket_fd);
-   	std::cout << "Server shutdown completed." << std::endl;
     // Cerrar el socket del servidor
     close(socket_fd);
    	std::cout << "Server shutdown completed." << std::endl;

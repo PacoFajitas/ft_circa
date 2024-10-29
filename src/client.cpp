@@ -29,6 +29,11 @@ const std::string& Client::getRealname() const {
 
 const std::string& Client::getHostname() const { return hostname; }
 
+bool Client::getIsConnected() const
+{
+    return isConnected;
+}
+
 bool Client::isAuthenticated() const {
     return authenticated;
 }
@@ -51,6 +56,11 @@ bool Client::canBeRegistered() const {
 // Setters
 void Client::setNickname(const std::string& nick) {
     nickname = nick;
+}
+
+void    Client::setConnected(const bool status)
+{
+    isConnected = status;
 }
 
 void Client::setUsername(const std::string& user) {

@@ -16,6 +16,7 @@ private:
     bool	authenticated;            // Estado de autenticación del cliente
     bool	registered;               // Indica si el cliente ha completado la autenticación
 	bool    received_welcome;
+    bool    isConnected;
     std::string buffer;            // Buffer para datos entrantes, manejar datos parciales
 
 public:
@@ -28,6 +29,7 @@ public:
     const std::string& getUsername() const;
     const std::string& getRealname() const;
 	const std::string& getHostname() const;
+	bool    getIsConnected() const;
     bool	isAuthenticated() const;
     bool	isRegistered() const;
 	bool	isFullyRegistered() const;
@@ -42,6 +44,7 @@ public:
     void	setAuthenticated(bool state);
     void	setRegistered(bool state);
 	void	setReceivedWelcome(bool status);
+    void    setConnected(const bool status);
 	bool	hasReceivedWelcome() const;
 
     // Manejo de datos y comandos

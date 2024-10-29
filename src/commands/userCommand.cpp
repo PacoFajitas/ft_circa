@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   userCommand.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:52:19 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:52:21 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/29 18:45:24 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,7 @@ bool handleUserCommand(Client& client, const std::vector<std::string>& tokens, S
     client.setRealname(tokens[4]);
 
     // Configurar el hostname, en este caso usando una IP fija como ejemplo
-    std::string hostname = "127.0.0.1";
-    client.setHostname(hostname);
+    // client.setHostname(hostname);
 
     // Verificar si el cliente está completamente registrado
     if (client.isFullyRegistered()) {
