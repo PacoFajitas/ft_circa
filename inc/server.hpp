@@ -77,6 +77,7 @@ class Server
         void sendBotMessage(int client_fd, const std::string& response);
         void sendBotWelcome(Client *client, Channel *channel);
         void disconnectClient(Client* client, const std::string& quitMessage);
+        void sendBotJoin(Client *client, Channel *channel);
 
         ~Server();
 };

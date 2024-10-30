@@ -75,6 +75,7 @@
 
 // QUIT
 #define ERR_NORECIPIENTQUIT(servername) (std::string(":" + servername + " 431 :No recipient given (QUIT)"))
+#define RPL_QUIT(nick, user, hostname, message)(std::string(":" + nick+ "!" + user + "@" + hostname + " QUIT :" + message))
 
 // KICK
 #define ERR_USERNOTINCHANNELKICK(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))

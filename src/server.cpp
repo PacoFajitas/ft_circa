@@ -6,7 +6,7 @@
 /*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:59:23 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 20:12:53 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/30 17:28:54 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@
 #include "cscCommand.hpp"
 #include "fileTransfer.hpp"
 
-
 bool Server::isValidNickChan(std::string str, bool ischan)
 {
     if (str.empty())
@@ -53,7 +52,6 @@ bool Server::isValidNickChan(std::string str, bool ischan)
     return true;
 }
 
-
 //Volatile para que no cachee sino que la consulte siempre
 //sig_atomic_t tipo de C y CPP para variables que pueden modificadarse en un manejador de señales,
 //ya que es un tipo atomico, cualquier operacion se hara de una forma indivisible (un golpe)
@@ -74,16 +72,6 @@ void	Server::setupSignalHandler() {
     std::signal(SIGPIPE, SIG_IGN);        // Ignorar SIGPIPE para evitar que el servidor se cierre por desconexiones
 }
 
-
-/******************
-// Definición del manejador de señales
-void signalHandler(int signal) {
-    if (signal == SIGINT || signal == SIGTERM) {
-        stop_server = 1; // Señal para detener el servidor de manera segura
-    }
-}
-*********************/
-
 void Server::setTime() {
     // Obtener el tiempo actual
     std::time_t now = std::time(NULL); 
@@ -97,12 +85,10 @@ std::string Server::getTime() const {
 	return (serverTime);  // Retorna el tiempo guardado o ajusta según sea necesario
 }
 
-
 Server::Server(void) {
 	this->serverName = "MyIRCserver";
 	this->setTime();
 }
-
 
 /***********
 // Método de configuración del manejador de señales en la clase Server
@@ -110,17 +96,6 @@ void	Server::setupSignalHandler() {
 	std::signal(SIGINT, signalHandler);
 }
 **********/
-
-void    Server::initializeBot()
-{
-    _bot = new Client(-1);
-    _bot->setRealname("Wall-E•ᴗ•");
-    _bot->setNickname("Wall-E•ᴗ•");
-    _bot->setHostname("8.8.8.8");
-    _bot->setUsername("Wall-E•ᴗ•");
-    _bot->setAuthenticated(true);
-    _bot->setRegistered(true);
-}
 
 void	Server::configureServer(int port, std::string password) {
 	this->password = password;  // Asignar la contraseña
@@ -138,10 +113,7 @@ void	Server::configureServer(int port, std::string password) {
 	setupSignalHandler();      // Configurar el manejador de señales
 }
 
-
 Server::~Server() {};
-
-
 
 void	Server::run() {
 	setupSignalHandler();  // Configurar el manejador de señales
@@ -161,10 +133,6 @@ void	Server::run() {
     cleanup();  // Limpieza de recursos al finalizar
 }
 
-
-
-
-
 // Supervisamos los sockets utilizando la llamada al sistema poll()
 void Server::pollSockets() {
 // poll_fds.data(): Devuelve un puntero al primer elemento del vector poll_fds, 
@@ -181,10 +149,6 @@ void Server::pollSockets() {
         stop_server = 1;  // Señal para detener el servidor en caso de error
     }
 }
-
-
-
-
 
 // Encabezado de la función para manejar los eventos de poll
 void Server::handlePollEvents() {
@@ -254,7 +218,6 @@ bool Server::nickUsed(std::string nickname)
 	return false;
 }
 
-
 // Manejar la comunicación con los clientes
 void Server::handleClient(int client_fd)
 {
@@ -262,37 +225,29 @@ void Server::handleClient(int client_fd)
     if (!client->receiveData(*this)) {  // Si falla la recepción de datos, desconectar
         std::cout << "Client disconnected: " << client_fd << std::endl;
         close(client_fd);
-        std::cout << "Holiiiiiiiiiiiiiiiiiiiii" << std::endl;
 		disconnectClient(client, "Client disconnected");
     }
 }
+//Funcion que envia el mensaje de desconexion de usuario a todos los canales en los que estaba
+//y si el canal se queda vacio lo elimina y libera tanto el canal como el cliente
+//cerrando y eliminando el socket correspondiente
 void Server::disconnectClient(Client* client, const std::string& quitMessage) 
 {
     int client_fd = client->getSocketFD();
-    // Construir mensaje de QUIT
-    std::string message = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " QUIT :" + quitMessage;
-    // Eliminar al cliente de todos los canales y notificar a otros usuarios
-    std::map<std::string, Channel*>::iterator it = channels.begin();
-    while (it != channels.end()) {
-        Channel* channel = it->second;
-        if (channel->isUserInChannel(client->getNickname())) {
-            // Notificar a los demás usuarios en el canal
-            channel->sendMessage(message, client_fd);
-            // Eliminar al cliente del canal
-            channel->manageUser(client, PARTICIPANT, false);
-            // Si el canal queda vacío, eliminarlo
-            if (channel->getUsers().empty()) {
-                // Primero, obtener el nombre del canal antes de borrarlo
-                std::string channelName = channel->getName();
-                // Eliminar el canal del mapa
-                deleteChannel(channelName);
-                // Borrar el canal del mapa y avanzar el iterador
-                //  el iterador nuevamente
-            }
+    
+    std::string message = RPL_QUIT(client->getNickname(), client->getUsername(), client->getHostname(), quitMessage);
+    std::vector<Channel *> usrChanns = getChannelsFromClient(*client);
+    std::vector<Channel *>::iterator it = usrChanns.begin();
+    while (it != usrChanns.end()) {
+        Channel* channel = *it;
+        channel->sendMessage(message, client_fd);
+        channel->manageUser(client, PARTICIPANT, false);
+        if (channel->getUsers().empty()) {
+            std::string channelName = channel->getName();
+            deleteChannel(channelName);
         }
-        ++it; // Incrementar el iterador normalmente
+        ++it;
     }
-    // Eliminar el cliente del mapa de clientes
     clients.erase(client_fd);
     // Cerrar y eliminar el socket del cliente
     close(client_fd);
@@ -319,23 +274,6 @@ void Server::handleWrite(int client_fd) {
     // Aquí podemos manejar la lógica de escritura si se requiere en el futuro
 }
 
-void Server::sendBotWelcome(Client *client, Channel *channel)
-{
-   sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "          | Hi!! |"));
-   sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "    /)  /)_   ___|"));
-   sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "   (• ^ •) \\/"));
-    sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname()," </       \\>  "));
-//    sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "            .                     じしˍ,)ノ"));
-}
-
-void Server::sendBotMessage(int client_fd, const std::string& response)
-{
-    if (send(client_fd,response.c_str(), response.size(), 0) == -1) {
-        std::cerr << "Error: Failed to send response to client (fd " << client_fd << ")." << std::endl;
-    }
-    
-}
-
 void Server::sendResponse(int client_fd, const std::string& response) {
     std::string response_with_crlf = convertToCRLF(response); // Asegura \r\n
 
@@ -343,10 +281,6 @@ void Server::sendResponse(int client_fd, const std::string& response) {
         std::cerr << "Error: Failed to send response to client (fd " << client_fd << ")." << std::endl;
     }
 }
-
-
-
-
 
 void	Server::broadcastMessage(const std::string& message, 
 			const std::set<int>& include_fds = std::set<int>(), 
@@ -374,7 +308,7 @@ void	Server::broadcastMessage(const std::string& message,
 }
 
 void	Server::broadcastMessage(const std::string& message, 
-			const std::set<int>& include_fds = std::set<int>()) {
+	const std::set<int>& include_fds = std::set<int>()) {
         // Si include_fds está vacío, enviaremos a todos los clientes.
 	if (include_fds.empty()) {
 		for (std::map<int, Client*>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
@@ -398,7 +332,6 @@ void Server::deleteChannel(std::string name)
     delete channels[name];
     channels.erase(name);
 }
-
 
 const std::map<int, Client*>& Server::getClients() const {
 	return (clients); // 'clients' es el nombre de la variable que almacena los clientes.
