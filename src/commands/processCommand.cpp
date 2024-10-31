@@ -6,12 +6,19 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:51:11 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:51:13 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:48:52 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "commands.hpp"
 #include "utils.hpp"
+
+static void printCommands(std::string command)
+{
+	std::cout << "-----------------------------" << std::endl;
+	std::cout << "Processing " << command << " command" << std::endl;
+	std::cout << "-----------------------------" << std::endl;
+}
 
 static bool	requireRegistration(Client& client, Server& server) {
 	if (!client.isFullyRegistered()) {
@@ -29,33 +36,25 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
     std::string commandName = tokens[0];
 
     if (commandName == "NICK") {
-		std::cout << "-----------------------------" << std::endl;
-        std::cout << "Processing NICK command: " << command << std::endl;
-		std::cout << "-----------------------------" << std::endl;
+		printCommands("NICK");
         handleNickCommand(client, tokens, server);
     } else if (commandName == "PASS") {
-		std::cout << "-----------------------------" << std::endl;
-        std::cout << "Processing PASS command: " << command << std::endl;
-		std::cout << "-----------------------------" << std::endl;
+		printCommands("PASS");
         handlePassCommand(client, tokens, server);
     } else if (commandName == "USER") {
-		std::cout << "-----------------------------" << std::endl;
-        std::cout << "Processing USER command: " << command << std::endl;
-		std::cout << "-----------------------------" << std::endl;
+		printCommands("USER");
         handleUserCommand(client, tokens, server);
 	}
 	else {
 		if ((commandName == "CAP" || commandName == "PING") && !requireRegistration(client, server)) {
 			std::cout << "Ignoring command: " << command << std::endl;
-			return (true);  // Ignorar el comando CAP
+			return (true);
 			}
 		if (!requireRegistration(client, server))
 			return (false);
 
 		if (commandName == "JOIN") {
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing JOIN command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("JOIN");
 			handleJoinCommand(client, tokens, server);
 		}
 		else if (commandName == "PING") {
@@ -66,50 +65,39 @@ bool	processCommand(const std::string& command, Client& client, Server& server) 
 		}
 		else if (commandName == "WHO") {
 			if (tokens.size() > 1) {
-				std::cout << "-----------------------------" << std::endl;
-				std::cout << "Processing WHO command: " << command << std::endl;
-				std::cout << "-----------------------------" << std::endl;
+				printCommands("WHO");
 				handleWhoCommand(client, tokens[1], server);
 				}
 		}
 		else if (commandName == "MODE") {
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing MODE command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("MODE");
 			handleModeCommand(client, tokens, server);
 		}
 		else if(commandName == "PART"){
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing PART command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("PART");
 			handlePartCommand(client, tokens, server);
 		}
 		else if(commandName == "PRIVMSG"){
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing PRIVMSG command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("PRIVMSG");
 			handlePrivmsgCommand(client, tokens, server);
 		}
 		else if(commandName == "INVITE"){
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing INVITE command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("INVITE");
 			handleInviteCommand(client, tokens, server);
 		}
 		else if(commandName == "KICK"){
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing KICK command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("KICK");
 			handleKickCommand(client, tokens, server);
 		}
 		else if(commandName == "TOPIC"){
-			std::cout << "-----------------------------" << std::endl;
-			std::cout << "Processing TOPIC command: " << command << std::endl;
-			std::cout << "-----------------------------" << std::endl;
+			printCommands("TOPIC");
 			handleTopicCommand(client, tokens, server);
 		}
 		else
 		{
+			std::cout << "-----------------------------" << std::endl;
+			std::cout << "Unknown command: " << command << std::endl;
+			std::cout << "-----------------------------" << std::endl;
 			server.sendResponse(client.getSocketFD(), ERR_UNKNOWNCOMMAND(commandName));
 		}
 	}

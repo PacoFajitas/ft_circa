@@ -7,10 +7,10 @@
 #include <sys/socket.h> // Para send(), recv()
 #include <cstring> // Para manejo de cadenas
 
-// Constructor: inicializa el descriptor de archivo y los estados
-Client::Client(int fd) : socket_fd(fd), authenticated(false), registered(false), received_welcome(false), buffer("") {}
 
-// Getters
+Client::Client(int fd) : socket_fd(fd), authenticated(false), registered(false), received_welcome(false), received_botjoin(false), buffer(""){}
+
+
 int Client::getSocketFD() const {
     return socket_fd;
 }
@@ -39,7 +39,7 @@ bool Client::isAuthenticated() const {
 }
 
 bool Client::getHasPassword() const {
-    return authenticated;  // O ajusta según cómo gestionas la autenticación
+    return authenticated;
 }
 
 bool Client::isRegistered() const {
@@ -53,7 +53,7 @@ bool Client::isFullyRegistered() const {
 bool Client::canBeRegistered() const {
 	return (!nickname.empty() && !username.empty() && isAuthenticated());
 }
-// Setters
+
 void Client::setNickname(const std::string& nick) {
     nickname = nick;
 }
@@ -87,8 +87,16 @@ void	Client::setReceivedWelcome(bool status) {
 	received_welcome = status;
 }
 
+void	Client::setReceivedBotJoin(bool status) {
+	received_botjoin = status;
+}
+
 bool	Client::hasReceivedWelcome() const {
 	return (received_welcome);
+}
+
+bool	Client::hasReceivedBotJoin() const {
+	return (received_botjoin);
 }
 
 
@@ -103,31 +111,20 @@ bool Client::receiveData(Server &server) {
         } else {
             std::cout << "Error receiving data from client." << std::endl;
         }
-        return false; // Señal de error o desconexión
+        return false;
     }
-    
-    temp_buffer[bytes_received] = '\0'; // Terminar string recibidos
-	
-	std::cout << "Datos recibidos: " << temp_buffer << std::endl;  // Imprimir los datos recibidos
-
-    buffer += temp_buffer;  // Añadir al buffer para manejo de datos parciales
-
-																   //
-    // Procesar líneas completas terminadas en \r\n
+    temp_buffer[bytes_received] = '\0';
+	std::cout << "Datos recibidos: " << temp_buffer << std::endl;
+    buffer.append(temp_buffer);
     size_t pos;
     while ((pos = buffer.find("\r\n")) != std::string::npos) {
         std::string command = buffer.substr(0, pos);
 		processCommand(command, *this, server);
         buffer.erase(0, pos + 2);
     }
-
     return true;
 }
 
-
-
-
-// Enviar respuestas al cliente asegurando el formato \r\n
 void Client::sendResponse(const std::string& response) {
     std::string response_with_crlf = convertToCRLF(response);
     if (send(socket_fd, response_with_crlf.c_str(), response_with_crlf.size(), 0) == -1) {

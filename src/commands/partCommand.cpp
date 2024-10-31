@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 18:27:07 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:45:27 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:50:00 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void handlePartCommand(Client& client, const std::vector<std::string>& tokens, S
 		server.sendResponse(client.getSocketFD(), err);
 		return;
 	}
-	
 	std::string resp = "";
 	if (tokens.size() > 2)
 	{

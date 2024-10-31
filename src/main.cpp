@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:57:31 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:57:34 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:42:52 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,30 +41,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-// Main chorra que normalmente estara comentado para probar funciones pequenas
-
-// int main(int a, char **b)
-// {
-//     (void)a;
-//     (void)b;
-//     Client test(1);
-//     std::vector<std::string> test2;
-//     std::vector<std::string> test3;
-//     test2.push_back("MODE");
-//     test2.push_back("#a");
-//     test2.push_back("+l");
-//     test2.push_back("MODE");
-//     test2.push_back("MODE");
-//     test2.push_back("MODE");
-//     test2.push_back("MODE");
-//     test2.push_back("MODE");
-//     test2.push_back("MODE");
-//     test2.push_back("MODE");
-
-//     test3 = getArgs(test2);
-//     for (size_t i = 0; i < test3.size(); i++)
-//     {
-//         std::cout << test3[i] << std::endl;
-//     }
-// }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bot.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 17:23:49 by tfiguero          #+#    #+#             */
-/*   Updated: 2024/10/30 17:27:59 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:31:30 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,13 @@ void    Server::initializeBot()
     _bot->setRegistered(true);
 }
 
-void Server::sendBotWelcome(Client *client, Channel *channel)
+void Server::sendBotWelcome(int client, Server &server, std::string nick)
 {
-	sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "          | Hi!! |"));
-	sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "    /)  /)_   ___|"));
-	sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "   (• ^ •) \\/"));
-	sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname()," </       \\>  "));
-	sendResponse(client->getSocketFD(), RPL_PRIVMSG(channel->getBot()->getNickname(), client->getNickname(), "To join a channel you can type JOIN <channel_name> or /join <channel_name> if you are using HexChat!"));
+	sendResponse(client, RPL_PRIVMSG(server.getBot()->getNickname(), nick, "          | Hi!! |"));
+	sendResponse(client, RPL_PRIVMSG(server.getBot()->getNickname(), nick, "    /)  /)_   ___|"));
+	sendResponse(client, RPL_PRIVMSG(server.getBot()->getNickname(), nick, "   (• ^ •) \\/"));
+	sendResponse(client, RPL_PRIVMSG(server.getBot()->getNickname(), nick," </       \\>  "));
+	sendResponse(client, RPL_PRIVMSG(server.getBot()->getNickname(), nick, "To join a channel you can type JOIN <channel_name> or /join <channel_name> if you are using HexChat!"));
 }
 
 void Server::sendBotJoin(Client *client, Channel *channel)

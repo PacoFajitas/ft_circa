@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
+/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:59:23 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/30 18:13:04 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:25:13 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ volatile sig_atomic_t stop_server = 0;
 
 void signalHandler(int signal) {
     if (signal == SIGINT || signal == SIGTERM) {
-        stop_server = 1; // Señal para detener el servidor de manera segura
+        stop_server = 1;
     }
 }
 
@@ -73,16 +73,14 @@ void	Server::setupSignalHandler() {
 }
 
 void Server::setTime() {
-    // Obtener el tiempo actual
     std::time_t now = std::time(NULL); 
     char buffer[100];
-    // Formatear el tiempo como una cadena legible
     std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
-    serverTime = buffer;  // Guardar el tiempo formateado en serverTime
+    serverTime = buffer;
 }
 
 std::string Server::getTime() const {
-	return (serverTime);  // Retorna el tiempo guardado o ajusta según sea necesario
+	return (serverTime);
 }
 
 Server::Server(void) {
@@ -96,72 +94,68 @@ void	Server::setupSignalHandler() {
 	std::signal(SIGINT, signalHandler);
 }
 **********/
-
 void	Server::configureServer(int port, std::string password) {
-	this->password = password;  // Asignar la contraseña
-	this->port = port;          // Asignar el puerto
+	this->password = password;
+	this->port = port;
 
-	socket_fd = createSocket();//Creamos un socket 
-	enableReuseAddress(socket_fd);// Opcion de reusar rapidamente la direccion
-	setNonBlockingMode(socket_fd);// Que no nos bloquee
-	bindSocket(socket_fd, port);//Vinculamos el socket a la IP y puerto
-	listenOnSocket(socket_fd);// Lo ponemos en escucha
+	socket_fd = createSocket();
+	enableReuseAddress(socket_fd);
+	setNonBlockingMode(socket_fd);
+	bindSocket(socket_fd, port);
+	listenOnSocket(socket_fd);
     initializeBot();
-	// Añadir el socket a la lista de descriptores supervisados por poll (abajo: sensible a POLLIN)
-	addPollFd(poll_fds, socket_fd, POLLIN); //Añadir el socket_fd, a los poll_fds
+	addPollFd(poll_fds, socket_fd, POLLIN);
     
-	setupSignalHandler();      // Configurar el manejador de señales
+	setupSignalHandler();
 }
 
 Server::~Server() {};
 
 void	Server::run() {
-	setupSignalHandler();  // Configurar el manejador de señales
+	setupSignalHandler();
 
 	int prevClientCount = poll_fds.size() - 1;
 
-	while (!stop_server) {  // Repetir mientras no se haya recibido la señal de interrupción
+	while (!stop_server) {
 		int currentClientCount = poll_fds.size() - 1;
 		if (prevClientCount != currentClientCount) {
 			std::cout << "Currently monitoring " << currentClientCount << " clients." << std::endl;
 			prevClientCount = currentClientCount;
 		}
-        pollSockets();  // Realizar poll para supervisar los sockets
-        handlePollEvents();  // Manejar los eventos de poll
+        pollSockets();
+        handlePollEvents();
     }
 
-    cleanup();  // Limpieza de recursos al finalizar
+    cleanup();
 }
-
 // Supervisamos los sockets utilizando la llamada al sistema poll()
-void Server::pollSockets() {
 // poll_fds.data(): Devuelve un puntero al primer elemento del vector poll_fds, 
 // que contiene estructuras pollfd para cada socket que el servidor está supervisando.
 // -1: Especifica que poll() debe esperar indefinidamente hasta que ocurra un evento 
 // en uno de los descriptores de archivo supervisados.
+void Server::pollSockets() {
     int poll_count = poll(poll_fds.data(), poll_fds.size(), -1); //el poll_fds
 
-    if (poll_count < 0) {// Error!
-        if (stop_server) {  // Si la señal fue recibida, salir del bucle sin error
+    if (poll_count < 0) {
+        if (stop_server)
             return;
-        }
-        std::cout << "Error: Poll failed." << std::endl;
-        stop_server = 1;  // Señal para detener el servidor en caso de error
+    std::cout << "Error: Poll failed." << std::endl;
+    stop_server = 1;
     }
 }
 
 // Encabezado de la función para manejar los eventos de poll
 void Server::handlePollEvents() {
     for (size_t i = 0; i < poll_fds.size(); ++i) {
-        if (poll_fds[i].revents & POLLIN) {  // Hay datos disponibles para leer
-            if (poll_fds[i].fd == socket_fd) {  // Actividad en el socket del servidor
-                acceptClient();  // Aceptar nueva conexión de cliente
-            } else {  // Actividad en un socket de cliente
-                handleClient(poll_fds[i].fd);  // Manejar datos del cliente
+        if (poll_fds[i].revents & POLLIN) {
+            if (poll_fds[i].fd == socket_fd) {
+                acceptClient();
+            } else {
+                handleClient(poll_fds[i].fd);
             }
         }
-		if (poll_fds[i].revents & POLLOUT) {  // Socket listo para enviar datos
-			handleWrite(poll_fds[i].fd);  // Manejar la escritura de datos
+		if (poll_fds[i].revents & POLLOUT) {
+			handleWrite(poll_fds[i].fd);
     	}
 	}
 }
@@ -183,7 +177,6 @@ void Server::acceptClient() {
 
 // Función para gestionar un nuevo cliente
 void Server::newClient(int client_fd, const char* hostname) {
-    // Crear un nuevo cliente
     Client* new_client = new Client(client_fd);
     //almacena la información de la dirección IP y el puerto del cliente
     new_client->setConnected(true);
@@ -214,6 +207,7 @@ void Server::handleClient(int client_fd)
 		disconnectClient(client, "Client disconnected");
     }
 }
+
 //Funcion que envia el mensaje de desconexion de usuario a todos los canales en los que estaba
 //y si el canal se queda vacio lo elimina y libera tanto el canal como el cliente
 //cerrando y eliminando el socket correspondiente
@@ -245,7 +239,6 @@ void Server::disconnectClient(Client* client, const std::string& quitMessage)
             ++pollIt;
         }
     }
-    // Liberar la memoria del objeto Client
     delete client;
 }
 
@@ -256,8 +249,7 @@ std::string Server::getServerName() const {
 
 // Manejar la escritura de datos a los clientes (placeholder, por si se necesita)
 void Server::handleWrite(int client_fd) {
-	(void)client_fd; // Evitar la advertencia de parámetro no usado
-    // Aquí podemos manejar la lógica de escritura si se requiere en el futuro
+	(void)client_fd;
 }
 
 void Server::sendResponse(int client_fd, const std::string& response) {
@@ -389,18 +381,16 @@ void	Server::addChannel(Channel* channel) {
 }
 
 void	Server::sendPing(Client& client) {
-	// Crea el mensaje PING
 	std::string pingMsg = "PING :" + getServerName();
-	//Envia el mensaje PING al cliente
 	sendResponse(client.getSocketFD(), pingMsg);
 }
 
 std::vector<Client*> Server::getChannelUsers(const std::string& channelName) {
     Channel* channel = getChannel(channelName);
     if (channel) {
-        return (channel->getUsersWithRole("INCHANNEL"));  // Retorna los usuarios del canal si existe
+        return (channel->getUsersWithRole("INCHANNEL"));
     }
-    return std::vector<Client*>();  // Si el canal no existe, devuelve un vector vacío
+    return std::vector<Client*>();
 }
 
 
@@ -410,8 +400,8 @@ void Server::handleFileSendRequest(Client& client, const std::vector<std::string
         return;
     }
 
-    std::string recipientNick = tokens[1];  // Nombre del destinatario
-    std::string fileName = tokens[2];  // Nombre del archivo
+    std::string recipientNick = tokens[1];
+    std::string fileName = tokens[2];
 	
 	if (fileName.size() > 255) {
 		fileName = fileName.substr(0, 255);
@@ -433,22 +423,19 @@ void Server::handleFileSendRequest(Client& client, const std::vector<std::string
     std::streamsize fileSize = file.tellg();
     file.seekg(0, std::ios::beg);
 
-	//Vamos a crear el nombre corto sin el path:
 	std::string shortFileName;
 	size_t lastSlashPos = fileName.find_last_of("/");
 	if (lastSlashPos != std::string::npos) {
-		shortFileName = fileName.substr(lastSlashPos + 1);  // Nombre del archivo sin path
+		shortFileName = fileName.substr(lastSlashPos + 1);
 		}
 	else {
-        shortFileName = fileName;  // Si no hay '/', usa el nombre completo
+        shortFileName = fileName;
     }
 
-    // Notificamos al destinatario sobre el archivo que se le quiere enviar
 	std::ostringstream oss;
 	oss << fileSize;
 	std::string fileSizeStr = oss.str();
 
-	// Enviar notificación solo con el nombre corto
 	std::string notification = "PRIVMSG " + recipient->getNickname() + " :" +
 		client.getNickname() + 
 		" wants to send you the file: " + shortFileName + "\n" +
@@ -456,18 +443,13 @@ void Server::handleFileSendRequest(Client& client, const std::vector<std::string
 		"\nReject by typing: /REJECT_F " + shortFileName;	
 	sendResponse(recipient->getSocketFD(), notification);
 
-	// Enviar notificación al cliente que está enviando el archivo
 	std::string senderNotification = "PRIVMSG " + client.getNickname() + 
 		" :Attempting to send the file " +
         shortFileName + " to " + recipient->getNickname() + "...";
     sendResponse(client.getSocketFD(), senderNotification);
 
-    // Almacenar la transferencia con el path completo
     addFileTransfer(&client, recipient, fileName, fileSize);
 }
-
-
-
 
 // Aqui manejamos la aceptacion del archivo por parte del cliente receiver
 void Server::handleAcceptFile(Client& client, const std::vector<std::string>& tokens) {
@@ -476,7 +458,7 @@ void Server::handleAcceptFile(Client& client, const std::vector<std::string>& to
         return;
     }
 
-    std::string fileName = tokens[1];  // Nombre del archivo
+    std::string fileName = tokens[1];
     int clientFD = client.getSocketFD();
 
     // Verificamos si hay una solicitud de archivo activa
@@ -487,76 +469,64 @@ void Server::handleAcceptFile(Client& client, const std::vector<std::string>& to
 
     FileTransfer* transfer = getActiveTransfers()[clientFD];
 
-    // Mensaje de confirmación de la transferencia
     std::ostringstream oss;
     oss << transfer->getFileSize();
 
-	// Pillamos el Home del user:
     const char* homeDir = getenv("HOME");
     if (!homeDir) {
         sendResponse(client.getSocketFD(), "Error: Could not determine user's home directory.");
         return;
     }
 
-	// Creamos el path para la carpeta "DescargasChat" en el Desktop
-    std::string downloadPath = std::string(homeDir) + "/Desktop/DescargasChat";
+    std::string downloadPath = std::string(homeDir) + "/Downloads";
 
     // Creamos el directorio si no exite
     struct stat st;
 	if (stat(downloadPath.c_str(), &st) != 0) {
 		// Intentamos crear la carpeta si no existe
 		if (mkdir(downloadPath.c_str(), 0777) != 0) {
-        // Enviar mensaje de error al cliente si no se puede crear la carpeta
 			sendResponse(client.getSocketFD(), "Error: Failed to create directory 'DescargasChat' on the Desktop.");
         return;
 	    }
 	}
-    // Anadimios el path al nombre del fichero
     downloadPath += "/" + fileName;
 
-	// Notificación para el cliente que envía el archivo
 	std::string senderNotification = "PRIVMSG " + transfer->getSender()->getNickname() +
 		" :Your file " + fileName + " has been accepted. The transfer will begin shortly.";
 	sendResponse(transfer->getSender()->getSocketFD(), senderNotification);
 
-	// Notificación para el cliente que recibe el archivo
 	std::string receiverNotification = "PRIVMSG " + transfer->getRecipient()->getNickname() +
 		" :You have accepted the file " + fileName + ". The transfer will begin shortly.";
 	sendResponse(transfer->getRecipient()->getSocketFD(), receiverNotification);
 
-
-    // Iniciamos la transferencia
 	sendFileData(*(transfer->getSender()), *(transfer->getRecipient()), fileName, downloadPath, *this);
 
 }
 
-// Ahora el rechazo de la transferencia por parte del cliente receier
+// Ahora el rechazo de la transferencia por parte del cliente receiver
 void Server::handleRejectFile(Client& client, const std::vector<std::string>& tokens) {
     if (tokens.size() < 2) {
         sendResponse(client.getSocketFD(), "Error: Missing file name in the rejection request.");
         return;
     }
 
-    std::string fileName = tokens[1];  // Nombre del archivo
+    std::string fileName = tokens[1];
     int clientFD = client.getSocketFD();
 
     // Verificamos si hay una solicitud de archivo activa
     if (getActiveTransfers().find(clientFD) != getActiveTransfers().end()) {
         FileTransfer& transfer = *getActiveTransfers()[clientFD];
         
-        // Notificamos al remitente que la solicitud fue rechazada
+        // Notificamos al remitente que la solicitud fue rechazada y confirmamos al receiver que ha rechazado la transferencia
         sendResponse(transfer.getSender()->getSocketFD(),"The file transfer for " + fileName + " was rejected.");
-		// Confirmamos al receiver que ha rechazado la transferencia
         sendResponse(client.getSocketFD(), "You have rejected the file " + fileName + " transfer.");
         
-        // Eliminamos la transferencia activa
         getActiveTransfers().erase(clientFD);
     }
 }
 
 void Server::addFileTransfer(Client* sender, Client* recipient, const std::string& fileName, std::streamsize fileSize) {
     int recipientFD = recipient->getSocketFD();
-	// Crear un nuevo puntero a FileTransfer
     FileTransfer* transfer = new FileTransfer(sender, recipient, fileName, fileSize); 
     activeTransfers[recipientFD] = transfer;
 }
@@ -574,33 +544,29 @@ FileTransfer* Server::getFileTransfer(int clientFD) {
 
 void Server::removeFileTransfer(int recipientFD) {
     if (activeTransfers.find(recipientFD) != activeTransfers.end()) {
-        delete activeTransfers[recipientFD]; // Liberar memoria
+        delete activeTransfers[recipientFD];
         activeTransfers.erase(recipientFD);
     }
 }
 
-// Para encontrar por un nick un cliente, lo necesitamos para enviar los archivos
-// Copiamos la funcion de arriba del mapa de clientes.
+
 Client* Server::getClientByNick(const std::string& nickname) const {
-    // Recorremos el mapa de clientes
     std::map<int, Client*>::const_iterator it;
     for (it = clients.begin(); it != clients.end(); ++it) {
-        // Verificamos si el nickname del cliente coincide
         if (it->second->getNickname() == nickname) {
-            return it->second; // Devolvemos el cliente si el nickname coincide
+            return it->second;
         }
     }
-    return NULL; // Si no se encuentra el cliente, devolvemos NULL
+    return NULL;
 }
 
+// Usamos std::ostringstream para construir el mensaje de error
 void Server::sendBinaryData(int client_fd, const std::vector<char>& data) {
-    // Usamos std::ostringstream para construir el mensaje de error
     std::ostringstream oss;
     oss << "Error: Failed to send binary data to client (fd " << client_fd << ").";
-    std::string errorMsg = oss.str();  // Convertir a string
+    std::string errorMsg = oss.str();
 
-    // Enviar los datos binarios al cliente
     if (send(client_fd, data.data(), data.size(), 0) == -1) {
-        sendResponse(client_fd, errorMsg);  // Usa función de envío de mensajes para notificar al cliente
+        sendResponse(client_fd, errorMsg);
     }
 }

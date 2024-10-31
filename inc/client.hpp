@@ -16,6 +16,7 @@ private:
     bool	authenticated;            // Estado de autenticación del cliente
     bool	registered;               // Indica si el cliente ha completado la autenticación
 	bool    received_welcome;
+    bool    received_botjoin;
     bool    isConnected;
     std::string buffer;            // Buffer para datos entrantes, manejar datos parciales
 
@@ -44,13 +45,13 @@ public:
     void	setAuthenticated(bool state);
     void	setRegistered(bool state);
 	void	setReceivedWelcome(bool status);
+    void	setReceivedBotJoin(bool status);
     void    setConnected(const bool status);
 	bool	hasReceivedWelcome() const;
+    bool	hasReceivedBotJoin() const;
 
-    // Manejo de datos y comandos
 	bool receiveData(Server& server);
-//    void handleCommand(const std::string& command);  // Procesar comando recibido
-    void sendResponse(const std::string& response);  // Enviar respuestas al cliente
+    void sendResponse(const std::string& response);
 };
 
-#endif // CLIENT_HPP
+#endif

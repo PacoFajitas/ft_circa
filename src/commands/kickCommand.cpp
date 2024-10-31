@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 17:38:48 by tfiguero          #+#    #+#             */
-/*   Updated: 2024/10/29 16:34:58 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:51:03 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void handleKickCommand(Client& client, const std::vector<std::string>& tokens, S
 	Channel *channel = server.getChannel(tokens[1]);
 	std::string err;
 	if (!channel)
-		err = ERR_NOSUCHCHANNEL(channel->getName());
+		err = ERR_NOSUCHCHANNEL(tokens[1]);
 	else if (!channel->isUserRole(client, "INCHANNEL"))
 		err = ERR_NOTONCHANNEL(server.getServerName(), channel->getName());
 	else if (!channel->isUserRole(client, "OPERATOR"))
@@ -34,7 +34,6 @@ void handleKickCommand(Client& client, const std::vector<std::string>& tokens, S
 		server.sendResponse(client.getSocketFD(),err);
 		return ;
 	}
-	
 	std::string resp = "";
 	if (tokens.size() > 2)
 	{

@@ -3,7 +3,7 @@
 #include "server.hpp"
 #include "utils.hpp"
 
-//El modo +o no es un modo de canal es para dar o quitar permisos de operador a un cliente en concreto dentro de cada canal
+
 Channel::Channel(const std::string& channel_name, Server& srv, Client &client, Client *bot) : name(channel_name), server(srv), _bot(bot)
 {
 	std::cout << "Canal creado: " << name << std::endl;
@@ -15,10 +15,7 @@ Channel::Channel(const std::string& channel_name, Server& srv, Client &client, C
     topic = "";
     password = "";
     limitUsers = 0;
-    //poner los modos a false:D
 }
-
-// GETERS AND SETERS
 
 int	Channel::getLimitUsers() const
 {
@@ -30,21 +27,18 @@ const	std::string	Channel::getPassword() const
     return(password);
 }
 
-// Returns the name of the channel
 const	std::string& Channel::getName() const 
 {
 		return (name);
 }
 
-// Returns if the selected mode is active or not
 const	bool& Channel::getMode(char mode) const 
 {
     std::map<char, bool>::const_iterator iter = modes.find(mode);
     return iter->second;
 }
 
-//returns the flags of all the activated modes in a string
-//Example: +ik
+// Returns the flags of all the activated modes in a string
 const	std::string Channel::getAllModes() const 
 {
     std::string ret = "+";
@@ -127,8 +121,7 @@ std::vector<Client *> Channel::getUsersWithRole(std::string mode)
     }
     return (ret);
 }
-//Estas dos funciones se pueden juntar y hacer una generica 
-//para saber si cualquier usuario pertenece a cualquier rol
+
 bool	Channel::isUserRole(const Client& client, std::string role)
 {
     std::vector<Client *>aux;
@@ -182,8 +175,6 @@ void Channel::setRole(std::string nick,  UserRole rol)
         }
         it++;  
     }
-    //En caso de que no lo encuentre en el canal busco tambien en el servidor para dar
-    //El codigo de error que pertoque en cada situacion
     std::map<int, Client*> temp = server.getClients();
     std::map<int, Client*>::iterator it2 = temp.begin();
     while(it2 != temp.end())
@@ -223,7 +214,6 @@ void    Channel::setMode(char mode, bool active)
             modes['k'] = false;
         else if (mode == 'l')
         {
-            // std::cout << "tus muertos pisados" << std::endl;
             modes['l'] = false;
         }
         
@@ -234,8 +224,6 @@ void    Channel::setMode(char mode, bool active)
 
 void    Channel::setMode(char mode, bool active, std::string msg)
 {
-    // if (active == false && getMode(mode) == false)
-    //     return ;
     if (active == true)
     {
         if (mode == 'k')
@@ -252,7 +240,6 @@ void    Channel::setMode(char mode, bool active, std::string msg)
         {
             if (isUserInChannel(msg))
                 this->setRole(msg, OPERATOR);
-            
         }
     }
     else
@@ -262,9 +249,7 @@ void    Channel::setMode(char mode, bool active, std::string msg)
         else if (mode == 'l')
             modes['l'] = false; 
         else if(mode == 'o')
-        {
             this->setRole(msg, PARTICIPANT);
-        }
     }
 }
 
@@ -286,33 +271,19 @@ Client *Channel::getBot()
 	return _bot;
 }
 
-// METHODS
-
 // Adds/Deletes a Client from the users map
 void	Channel::manageUser(Client* client, UserRole role, bool add) {
 
     if (add)
         users[client] = role;
     else
-    {
         users.erase(client);
-    }
-
 }
 
 void	Channel::dummyUseServer() {
     std::cout << &server << std::endl;
 }
 
-// En la clase Channel
-
-// Almacena los clientes a los que ya se les ha enviado el modo
-// void Channel::switchMode(std::string mode)
-// {
-//     if (mode)
-//     {
-//     }
-// }
 bool Channel::hasSentModeToClient(const Client& client) {
     return clientsWithModeSent.find(client.getSocketFD()) != clientsWithModeSent.end();
 }

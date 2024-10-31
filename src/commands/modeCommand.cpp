@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:36:41 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:40:17 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:51:41 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,19 +104,19 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
     ulong numPar = 0; //Para contar cuantos modos necesitan parametros
     for (ulong i = 1; i < mode.length(); i++)
     {
-        if (mode[i] == 'k' || mode[i] == 'o') //modificar isalnum por la funcion de valildchars
+        if (mode[i] == 'k' || mode[i] == 'o')
         {
             numPar++;
             checkargs = true;
         }
-        else if (active && mode[i] == 'l' && isStringNum(args[numPar])) //:servidor 467 <tu_nick> #canal :Channel limit is not a valid number
+        else if (active && mode[i] == 'l' && isStringNum(args[numPar]))
         {
             checkargs = true;
             numPar++;
         }
         else if (active && mode[i] == 'l' && !isStringNum(args[numPar])) 
         {
-            server.sendResponse(client.getSocketFD(), std::string("ERR_UNKNOWNERROR (400) : Please put numbers as arguments for key +l jiji" + tokens[3 + numPar]));
+            server.sendResponse(client.getSocketFD(), std::string("ERR_UNKNOWNERROR (400) : Please put numbers as arguments for key (+l)" + tokens[3 + numPar]));
             return ;
         }
         else if( mode[i] != 't' && mode [i] != 'i'&& mode [i] != 'l' )

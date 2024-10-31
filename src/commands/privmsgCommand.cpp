@@ -6,7 +6,7 @@
 /*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:48:47 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:49:39 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/31 17:49:18 by mlopez-i         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,8 @@ void handlePrivmsgCommand(Client& client, const std::vector<std::string>& tokens
         server.sendResponse(client.getSocketFD(), ERR_NEEDMOREPARAMS(client.getNickname(), "PRIVMSG"));
         return;
     }
-
     std::string recipientNick = tokens[1];
     std::string message = joinTokens(tokens, 2);
-
     Client* recipientClient = server.getClientByNick(recipientNick);
     Channel* recipientChannel = server.getChannel(recipientNick);
     if (!recipientClient && !recipientChannel) {
