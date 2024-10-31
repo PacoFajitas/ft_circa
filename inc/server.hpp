@@ -32,7 +32,7 @@ class Server
         void handlePollEvents();
         void acceptClient();
         bool nickUsed(std::string nickname);
-        void newClient(int client_fd);
+        void newClient(int client_fd, const char* hostname);
         void handleClient(int client_fd);
         void handleWrite(int client_fd); // Añadido
         void cleanup();

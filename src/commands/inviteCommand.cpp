@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   inviteCommand.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 17:30:52 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 16:32:18 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/30 18:16:45 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void handleInviteCommand(Client& client, const std::vector<std::string>& tokens,
 	}
 	channel->manageUser(invitedclient, INVITED, true);
 	server.sendResponse(client.getSocketFD(), RPL_INVITING(server.getServerName(),
-			client.getNickname(), channel->getName(), invitedclient->getNickname()));
+		client.getNickname(), channel->getName(), invitedclient->getNickname()));
 	server.sendResponse(invitedclient->getSocketFD(),RPL_YOUVEBEENINVITED(client.getNickname(), client.getUsername(), 
 		client.getHostname(), invitedclient->getNickname(), channel->getName()));
 }

@@ -6,7 +6,7 @@
 /*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:59:23 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/30 17:28:54 by tfiguero         ###   ########.fr       */
+/*   Updated: 2024/10/30 18:13:04 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,43 +167,29 @@ void Server::handlePollEvents() {
 }
 
 void Server::acceptClient() {
-    int client_fd = accept(socket_fd, NULL, NULL);
+    sockaddr_in temp;
+    socklen_t temp_len;
+    temp_len = sizeof(temp);
+    int client_fd = accept(socket_fd, (struct sockaddr *)&temp, &temp_len);
     if (client_fd < 0) {
         std::cout << "Error: Failed to accept new client." << std::endl;
         return;
     }
+    const char* ipStr = inet_ntoa(temp.sin_addr);
+    std::cout << ipStr << std::endl;
     // Añadimos el cliente
-	newClient(client_fd);
+	newClient(client_fd, ipStr);
 }
 
 // Función para gestionar un nuevo cliente
-void Server::newClient(int client_fd) {
+void Server::newClient(int client_fd, const char* hostname) {
     // Crear un nuevo cliente
     Client* new_client = new Client(client_fd);
     //almacena la información de la dirección IP y el puerto del cliente
-    struct sockaddr_in clientAddr;
-    std::cout << "pito pito" << std::endl;
-    //Almacena en addrLen el tamano de la estructura sockaddr_in
-    socklen_t addrLen = sizeof(clientAddr);
-    //getpeername obtiene la dirección IP y el puerto del par conectado al socket client_fd
-     if (getpeername(client_fd, (struct sockaddr*)&clientAddr, &addrLen) == 0) {
-        //
-        char ipStr[INET_ADDRSTRLEN];
-        //inet_ntop convierte la IP de binario [&(clientAddr.sin_addr)] a decimal
-        //Lo guarda en ipSTR
-        inet_ntop(AF_INET, &(clientAddr.sin_addr), ipStr, INET_ADDRSTRLEN);
-        std::string ip = ipStr;
-        std::cout << "gorgorito" << ip<< std::endl;
-        new_client->setHostname(ip);
-    }
     new_client->setConnected(true);
-    // Añadir el nuevo cliente al mapa de clientes
+    new_client->setHostname(hostname);
 	clients[client_fd] = new_client;
-    // Añadir el nuevo cliente a los descriptores supervisados por poll
     addPollFd(poll_fds, client_fd, POLLIN);
-    // new_client->setHostname(client_fd.getHostname)
-
-    // Mensaje de confirmación
 	std::cout << "New client connected: " << client_fd << std::endl;
 }
 bool Server::nickUsed(std::string nickname)
@@ -281,7 +267,7 @@ void Server::sendResponse(int client_fd, const std::string& response) {
         std::cerr << "Error: Failed to send response to client (fd " << client_fd << ")." << std::endl;
     }
 }
-
+//se podria hacer un template que recorra un mapa y aplique la funcion que le entra por parametro al mapa;
 void	Server::broadcastMessage(const std::string& message, 
 			const std::set<int>& include_fds = std::set<int>(), 
 			const std::set<int>& exclude_fds = std::set<int>()) {

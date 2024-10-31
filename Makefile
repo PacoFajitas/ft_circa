@@ -12,7 +12,7 @@ FILES = channel client cscCommand fileTransfer main server socketUtils utils \
 
 FILES += inviteCommand joinCommand kickCommand modeCommand nickCommand partCommand \
 		 passCommand pingCommand pongCommand privmsgCommand processCommand \
-		 topicCommand userCommand whoCommand \
+		 topicCommand userCommand whoCommand bot\
 
 SRC = $(addsuffix .cpp, $(FILES))
 

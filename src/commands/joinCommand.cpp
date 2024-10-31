@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   joinCommand.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:33:16 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/29 17:04:37 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/10/30 18:18:54 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void handleJoinCommand(Client& client, const std::vector<std::string>& tokens, S
     std::string clientList = channel->clientOpList();
     server.sendResponse(client.getSocketFD(), RPL_NAMREPLY(server.getServerName(), client.getNickname(), channel->getName(), clientList));
     server.sendResponse(client.getSocketFD(), RPL_ENDOFNAMES(client.getNickname(),channel->getName()));
-
+    std::cout << client.getUsername() << std::endl;
     //Mensaje de bienvenida del bot al canal
     server.sendBotWelcome(&client, channel);
 }
