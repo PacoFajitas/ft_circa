@@ -36,7 +36,7 @@ all:
 
 $(NAME):: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
-	@echo "EVERYTHING DONE   "⠀⠀⠀⠀⠀⠀⠀
+	@echo "EVERYTHING DONE   "
 
 
 clean:

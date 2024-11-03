@@ -72,6 +72,7 @@ void	addPollFd(std::vector<pollfd>& poll_fds, int fd, short events) {
 						// le estamos diciendo que queremos supervisar ese fd
 	pfd.events = events;  // Le decimos que sea sensible a cualquier cosa de events 
 						  // (como POLLIN, POLLOUT, POLLERR, etc.)
+	pfd.revents = 0;
 	poll_fds.push_back(pfd);  // Añadimos pfd al conjunto de Descriptores Supervisados (poll_fds), 
 							  // que es un vector.
 }

@@ -1,6 +1,8 @@
 #ifndef RESPONSES_HPP
 #define RESPONSES_HPP
 
+#define ERR_UNKNOWNERROR(msg)(std::string (" (400) :") + msg)
+
 // NICKNAME
 #define ERR_ERRONEUSNICKNAME(nickname) (std::string("432 ") + nickname + " :Erroneous nickname")
 #define ERR_NICKNAMEINUSE(nickname) (std::string("433 ") + nickname + " :Nickname is already in use")

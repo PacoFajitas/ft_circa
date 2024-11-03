@@ -233,7 +233,7 @@ void    Channel::setMode(char mode, bool active, std::string msg)
         }
         else if (mode == 'l')
         {
-            modes['l'] = true;
+            modes['l'] = true;            
             limitUsers = atoi(msg.c_str());
         }
         else if(mode == 'o')

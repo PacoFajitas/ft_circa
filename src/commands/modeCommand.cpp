@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   modeCommand.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlopez-i <mlopez-i@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tfiguero < tfiguero@student.42barcelona    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/29 16:36:41 by mlopez-i          #+#    #+#             */
-/*   Updated: 2024/10/31 17:51:41 by mlopez-i         ###   ########.fr       */
+/*   Updated: 2024/11/03 19:52:16 by tfiguero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
         }
         else if (active && mode[i] == 'l' && !isStringNum(args[numPar])) 
         {
-            server.sendResponse(client.getSocketFD(), std::string("ERR_UNKNOWNERROR (400) : Please put numbers as arguments for key (+l)" + tokens[3 + numPar]));
+            server.sendResponse(client.getSocketFD(), ERR_UNKNOWNERROR(std::string(" Please put numbers as arguments for key (+l)" + tokens[3 + numPar])));
             return ;
         }
         else if( mode[i] != 't' && mode [i] != 'i'&& mode [i] != 'l' )
@@ -156,7 +156,12 @@ void handleModeCommand(Client& client, const std::vector<std::string>& tokens, S
                 channel->setMode(mode.at(i), active);
             else
             {
-                channel->setMode(mode.at(i), active, args[numPar]);
+                if (mode.at(i) == 'l' && atof(args[numPar].c_str()) > 2147483647)
+                {
+                     server.sendResponse(client.getSocketFD(), ERR_UNKNOWNERROR("Our limit for the userlimit number is 2147483647"));
+                }
+                else
+                    channel->setMode(mode.at(i), active, args[numPar]);
                 numPar++;
             }
         }
